@@ -15,26 +15,74 @@
 
 <!-- ===== WELCOME ===== -->
 <div class="screen active" id="screen-welcome">
-<div class="welcome-wrap">
+<div class="welcome-wrap" style="justify-content:flex-start;padding-top:48px;padding-bottom:48px">
   <div class="text-center">
     <div class="welcome-icon">🌿</div>
     <h1 class="welcome-title">BesideYou</h1>
     <p class="welcome-sub">A companion for the cancer journey.</p>
     <p class="welcome-sub2">Free. Private. Open source. Always here.</p>
   </div>
+
   <div class="welcome-vignette">
     <p>"Maria kept a list of questions for her oncologist. On hard days she only answered one thing: <em>What was one small good thing today?</em> Over time, those notes became a map of her own strength."</p>
   </div>
-  <div class="welcome-features">
-    <div class="wf"><span>📋</span><p>Track symptoms and questions for your doctors, in one safe place.</p></div>
-    <div class="wf"><span>💊</span><p>Keep medications, appointments, and who's helping with what.</p></div>
-    <div class="wf"><span>✨</span><p>Capture moments and messages you want to remember.</p></div>
-    <div class="wf"><span>🔒</span><p>Everything stays on your device. We literally cannot see your data.</p></div>
+
+  <!-- What's inside -->
+  <div style="margin-bottom:32px">
+    <h3 class="text-center mb-20" style="color:var(--t2);font-size:.85rem;text-transform:uppercase;letter-spacing:.08em">What's inside</h3>
+    <div class="welcome-grid">
+      <div class="wg-card"><span class="wg-icon">📊</span><div class="wg-t">Symptom Tracker</div><div class="wg-d">Log how you feel. Bring clearer notes to your doctor.</div></div>
+      <div class="wg-card"><span class="wg-icon">💊</span><div class="wg-t">Medications</div><div class="wg-d">Doses, schedules, and questions — all in one place.</div></div>
+      <div class="wg-card"><span class="wg-icon">📅</span><div class="wg-t">Appointments</div><div class="wg-d">Questions for the doctor. Notes from the visit.</div></div>
+      <div class="wg-card"><span class="wg-icon">✨</span><div class="wg-t">Good Days Jar</div><div class="wg-d">Collect small moments of light for hard days.</div></div>
+      <div class="wg-card"><span class="wg-icon">🧘</span><div class="wg-t">Moments of Peace</div><div class="wg-d">Breathing exercises and grounding techniques.</div></div>
+      <div class="wg-card"><span class="wg-icon">📖</span><div class="wg-t">Medical Glossary</div><div class="wg-d">Scary words explained in plain language.</div></div>
+      <div class="wg-card"><span class="wg-icon">📝</span><div class="wg-t">Private Journal</div><div class="wg-d">A space for your thoughts. No one sees this but you.</div></div>
+      <div class="wg-card"><span class="wg-icon">🔄</span><div class="wg-t">Carer Handoff</div><div class="wg-d">Summarise the shift for the next carer.</div></div>
+    </div>
   </div>
-  <button class="btn btn-primary" onclick="App.go('screen-role')">Start with today</button>
-  <p class="welcome-safety">BesideYou does not give medical advice and should not be used in emergencies. Always contact your care team or emergency services if you are worried about your health.</p>
-  <div class="text-center mt-20">
+
+  <!-- Privacy -->
+  <div style="background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--rl);padding:24px;margin-bottom:32px">
+    <h3 class="text-center mb-12" style="font-size:.95rem">🔒 &nbsp;Your privacy, not just promised — proven</h3>
+    <div class="welcome-features">
+      <div class="wf"><span>🚫</span><p>No accounts. No sign-up. No email required.</p></div>
+      <div class="wf"><span>📱</span><p>Everything runs in your browser. There is no server.</p></div>
+      <div class="wf"><span>🔐</span><p>Save encrypted backups with a passphrase only you know.</p></div>
+      <div class="wf"><span>👁️</span><p>We literally cannot see your data. Verify it — it's open source.</p></div>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div style="margin-bottom:36px">
+    <h3 class="text-center mb-16" style="color:var(--t2);font-size:.85rem;text-transform:uppercase;letter-spacing:.08em">Common questions</h3>
+    <div class="faq-item"><div class="faq-q">Do you see my data?</div><div class="faq-a">No. We literally can't. There is no server to send it to.</div></div>
+    <div class="faq-item"><div class="faq-q">What if I clear my browser?</div><div class="faq-a">Your data is gone — unless you saved an encrypted backup. We recommend doing this regularly.</div></div>
+    <div class="faq-item"><div class="faq-q">Is this medical advice?</div><div class="faq-a">No. BesideYou helps you organise your notes and questions. Always talk to your care team about treatment.</div></div>
+    <div class="faq-item"><div class="faq-q">Does it cost anything?</div><div class="faq-a">No. Free forever. No ads, no premium tier, no catch. It's open source.</div></div>
+    <div class="faq-item"><div class="faq-q">Can my carer use it too?</div><div class="faq-a">Yes. When you start, you choose your role — patient, carer, or supporter. Each sees what's most relevant.</div></div>
+  </div>
+
+  <!-- CTA -->
+  <button class="btn btn-primary" onclick="App.go('screen-role')" style="font-size:1rem;padding:16px 32px">
+    Get started — choose your role
+  </button>
+  <p class="text-center mt-8" style="font-size:.85rem;color:var(--t3)">Takes 10 seconds. No questions, no sign-up.</p>
+
+  <p class="welcome-safety mt-24">BesideYou does not give medical advice and should not be used in emergencies. Always contact your care team or emergency services if you are worried about your health.</p>
+
+  <!-- For carers callout -->
+  <div style="background:var(--warm-s);border:1px solid rgba(196,149,106,.2);border-radius:var(--r);padding:20px;margin-top:24px">
+    <h3 style="font-size:.95rem;margin-bottom:8px">🤝 &nbsp;For carers</h3>
+    <p class="sub sm">You're not invisible here. BesideYou has features built for you — medication logs, handoff briefings for shift changes, questions for the doctor, and a reminder to take a break yourself.</p>
+  </div>
+
+  <div class="text-center mt-24">
     <a href="https://github.com/almost-magic/beside-you" target="_blank" rel="noopener" class="welcome-oss">Open source · Verify it yourself →</a>
+  </div>
+
+  <div class="text-center mt-16 pb-20">
+    <p style="font-size:.72rem;color:var(--t3)">A gift from <a href="https://almostmagic.au" target="_blank" rel="noopener" class="link-muted">Almost Magic Tech Lab</a> · Sydney<br>MIT Licence</p>
   </div>
 </div>
 </div>
