@@ -9,6 +9,7 @@ const App = window.App = {
     if(this.state.onboarded && this.state.role) this.go('screen-home');
     this.buildSev();
     this.renderAll();
+    this.wireEvents();
   },
 
   save() { try{localStorage.setItem('besideyou',JSON.stringify(this.state))}catch(e){} },
@@ -291,6 +292,34 @@ const App = window.App = {
   renderAll() {
     this.renderSymptoms();this.renderMeds();this.renderAppts();this.renderDQ();
     this.renderGoodDays();this.renderJournal();this.renderGlossary();this.renderResources();this.renderHandoffs();
+  },
+
+  // Wire all events via delegation (works even if inline onclick is blocked)
+  wireEvents() {
+    document.getElementById('app').addEventListener('click', (e) => {
+      const el = e.target.closest('[onclick]');
+      if (!el) return;
+      e.stopPropagation();
+      const c = el.getAttribute('onclick');
+      let m;
+      if (m = c.match(/App\.go\('([^']+)'\)/)) App.go(m[1]);
+      else if (m = c.match(/App\.setRole\('([^']+)'\)/)) App.setRole(m[1]);
+      else if (m = c.match(/App\.nav\('([^']+)'/)) App.nav(m[1], el);
+      else if (m = c.match(/App\.openModal\('([^']+)'\)/)) App.openModal(m[1]);
+      else if (m = c.match(/App\.closeModal\('([^']+)'\)/)) App.closeModal(m[1]);
+      else if (m = c.match(/App\.del\('([^']+)',\s*(\d+)\)/)) App.del(m[1], Number(m[2]));
+      else if (m = c.match(/App\.toggleDQ\((\d+)\)/)) App.toggleDQ(Number(m[1]));
+      else if (m = c.match(/App\.filterGlossaryCat\(this,\s*'([^']+)'\)/)) App.filterGlossaryCat(el, m[1]);
+      else if (m = c.match(/App\.filterRes\(this,\s*'([^']+)'\)/)) App.filterRes(el, m[1]);
+      else if (c.includes('pickMood')) App.pickMood(el);
+      else if (c.includes('pickSymType')) App.pickSymType(el);
+      else if (c.includes("toggle('active')")) el.classList.toggle('active');
+      else if (c.includes("toggle('open')")) el.classList.toggle('open');
+      else if (c.includes("'import-file'")) document.getElementById('import-file').click();
+      else if (m = c.match(/App\.(\w+)\(\)/)) { if (typeof App[m[1]] === 'function') App[m[1]](); }
+    }, true);
+    document.getElementById('import-file').addEventListener('change', (e) => App.importData(e));
+    document.getElementById('glossary-search').addEventListener('input', () => App.filterGlossary());
   },
 
   // Toast
