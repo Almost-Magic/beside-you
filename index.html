@@ -871,7 +871,54 @@ var App = {
   }
 };
 window.App = App;
-App.init();
+
+// Diagnostic: confirm JS is running by changing page title
+document.title = 'BesideYou \u2713 JS Active';
+
+// Error handler: show any errors visibly on the page
+window.onerror = function(msg, src, line) {
+  var d = document.createElement('div');
+  d.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#d94444;color:#fff;padding:16px;z-index:9999;font-size:14px';
+  d.textContent = 'Error: ' + msg + ' (line ' + line + ')';
+  document.body.insertBefore(d, document.body.firstChild);
+};
+
+// Initialize app with error handling
+try {
+  App.init();
+} catch(e) {
+  var d = document.createElement('div');
+  d.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#d94444;color:#fff;padding:16px;z-index:9999;font-size:14px';
+  d.textContent = 'Init error: ' + e.message;
+  document.body.insertBefore(d, document.body.firstChild);
+}
+
+// Bypass inline onclick: use event delegation with Function() constructor
+// This catches ALL clicks and executes onclick attribute code via global scope
+document.addEventListener('click', function(e) {
+  var el = e.target;
+  while (el && el !== document) {
+    var code = el.getAttribute ? el.getAttribute('onclick') : null;
+    if (code) {
+      try {
+        (new Function('event', code)).call(el, e);
+      } catch(err) {
+        var d = document.createElement('div');
+        d.style.cssText = 'position:fixed;top:40px;left:0;right:0;background:#c4956a;color:#fff;padding:16px;z-index:9999;font-size:14px';
+        d.textContent = 'Click error: ' + err.message + ' on: ' + code;
+        document.body.insertBefore(d, document.body.firstChild);
+      }
+      return;
+    }
+    el = el.parentElement;
+  }
+});
+
+// Wire non-click events
+var importEl = document.getElementById('import-file');
+if (importEl) importEl.addEventListener('change', function(e) { App.importData(e); });
+var searchEl = document.getElementById('glossary-search');
+if (searchEl) searchEl.addEventListener('input', function() { App.filterGlossary(); });
 </script>
 </body>
 </html>
