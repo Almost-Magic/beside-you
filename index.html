@@ -8,9 +8,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>BesideYou</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>">
-<link rel="stylesheet" href="style.css?v=3">
+<link rel="stylesheet" href="style.css?v=7">
 </head>
 <body>
+<noscript><div style="position:fixed;top:0;left:0;right:0;background:#d94444;color:#fff;padding:20px;z-index:99999;text-align:center;font-size:18px;font-family:sans-serif">JavaScript is disabled in your browser. BesideYou needs JavaScript to work. Please enable it in your browser settings.</div></noscript>
 <div id="app">
 
 <!-- ===== WELCOME ===== -->
@@ -64,7 +65,7 @@
   </div>
 
   <!-- CTA -->
-  <button class="btn btn-primary" onclick="App.go('screen-role')" style="font-size:1rem;padding:16px 32px">
+  <button class="btn btn-primary" data-go="screen-role" style="font-size:1rem;padding:16px 32px">
     Get started — choose your role
   </button>
   <p class="text-center mt-8" style="font-size:.85rem;color:var(--t3)">Takes 10 seconds. No questions, no sign-up.</p>
@@ -95,23 +96,23 @@
     <p class="sub mt-8">This helps us show you the right things first.</p>
   </div>
   <div class="stack">
-    <div class="card card-role" onclick="App.setRole('patient')">
+    <div class="card card-role" data-role="patient">
       <div class="card-emoji">💛</div>
       <h3>I am a patient</h3>
       <p class="sub sm">I'm navigating my own cancer journey.</p>
     </div>
-    <div class="card card-role" onclick="App.setRole('carer')">
+    <div class="card card-role" data-role="carer">
       <div class="card-emoji">🤝</div>
       <h3>I am a carer</h3>
       <p class="sub sm">I'm caring for someone with cancer.</p>
     </div>
-    <div class="card card-role" onclick="App.setRole('supporter')">
+    <div class="card card-role" data-role="supporter">
       <div class="card-emoji">🌸</div>
       <h3>I'm supporting someone</h3>
       <p class="sub sm">A friend or family member has cancer.</p>
     </div>
   </div>
-  <button class="btn btn-ghost mt-20" onclick="App.go('screen-welcome')">← Back</button>
+  <button class="btn btn-ghost mt-20" data-go="screen-welcome">← Back</button>
 </div>
 </div>
 
@@ -120,12 +121,12 @@
 <div class="screen-body" style="padding-top:28px">
   <div class="row-between mb-20">
     <div><h1 class="h1" id="greeting">Good morning.</h1><p class="sub mt-4" id="greeting-sub">How can we help you today?</p></div>
-    <button class="icon-btn" onclick="App.toggleTheme()" id="theme-btn" title="Toggle theme">🌙</button>
+    <button class="icon-btn" data-action="toggleTheme" id="theme-btn" title="Toggle theme">🌙</button>
   </div>
   <p class="hint italic mb-20">You don't need to use everything here. Most people start with just one thing.</p>
 
   <!-- Check-in card -->
-  <div class="card card-checkin" onclick="App.go('screen-checkin')">
+  <div class="card card-checkin" data-go="screen-checkin">
     <span class="card-checkin-icon">🌱</span>
     <div><h3 style="color:var(--sage)">Today's check-in</h3><p class="sub sm mt-2">A few gentle questions. About 2 minutes. Skip anything you like.</p></div>
   </div>
@@ -134,10 +135,10 @@
   <div id="qa-patient">
     <div class="section-label mt-28">Quick actions</div>
     <div class="stack-tight">
-      <div class="li" onclick="App.go('screen-glossary')"><div class="li-icon sky">🔍</div><div><div class="li-t">Look up a word I heard today</div><div class="li-s">Search the medical glossary</div></div></div>
-      <div class="li" onclick="App.go('screen-appointments')"><div class="li-icon warm">📖</div><div><div class="li-t">Prepare for an appointment</div><div class="li-s">Get your questions ready</div></div></div>
-      <div class="li" onclick="App.go('screen-gooddays')"><div class="li-icon gold">✨</div><div><div class="li-t">Capture a good moment</div><div class="li-s">Save it for a hard day</div></div></div>
-      <div class="li" onclick="App.go('screen-peace')"><div class="li-icon sage">🌬️</div><div><div class="li-t">I need a moment to breathe</div><div class="li-s">Grounding and breathing exercises</div></div></div>
+      <div class="li" data-go="screen-glossary"><div class="li-icon sky">🔍</div><div><div class="li-t">Look up a word I heard today</div><div class="li-s">Search the medical glossary</div></div></div>
+      <div class="li" data-go="screen-appointments"><div class="li-icon warm">📖</div><div><div class="li-t">Prepare for an appointment</div><div class="li-s">Get your questions ready</div></div></div>
+      <div class="li" data-go="screen-gooddays"><div class="li-icon gold">✨</div><div><div class="li-t">Capture a good moment</div><div class="li-s">Save it for a hard day</div></div></div>
+      <div class="li" data-go="screen-peace"><div class="li-icon sage">🌬️</div><div><div class="li-t">I need a moment to breathe</div><div class="li-s">Grounding and breathing exercises</div></div></div>
     </div>
   </div>
 
@@ -145,36 +146,36 @@
   <div id="qa-carer" style="display:none">
     <div class="section-label mt-28">For you, as a carer</div>
     <div class="stack-tight">
-      <div class="li" onclick="App.go('screen-medications')"><div class="li-icon warm">💊</div><div><div class="li-t">Record medications given</div><div class="li-s">What was given and when</div></div></div>
-      <div class="li" onclick="App.go('screen-symptoms')"><div class="li-icon sky">📋</div><div><div class="li-t">Note changes you've noticed</div><div class="li-s">Moods, energy, small changes</div></div></div>
-      <div class="li" onclick="App.go('screen-appointments')"><div class="li-icon gold">📝</div><div><div class="li-t">Questions for the doctor</div><div class="li-s">Build a shared list</div></div></div>
-      <div class="li" onclick="App.go('screen-handoff')"><div class="li-icon sage">🔄</div><div><div class="li-t">Carer handoff briefing</div><div class="li-s">Summarise the shift for the next carer</div></div></div>
-      <div class="li" onclick="App.go('screen-peace')"><div class="li-icon rose">💛</div><div><div class="li-t">Take a break — you deserve it</div><div class="li-s">Breathing exercises and a moment for you</div></div></div>
+      <div class="li" data-go="screen-medications"><div class="li-icon warm">💊</div><div><div class="li-t">Record medications given</div><div class="li-s">What was given and when</div></div></div>
+      <div class="li" data-go="screen-symptoms"><div class="li-icon sky">📋</div><div><div class="li-t">Note changes you've noticed</div><div class="li-s">Moods, energy, small changes</div></div></div>
+      <div class="li" data-go="screen-appointments"><div class="li-icon gold">📝</div><div><div class="li-t">Questions for the doctor</div><div class="li-s">Build a shared list</div></div></div>
+      <div class="li" data-go="screen-handoff"><div class="li-icon sage">🔄</div><div><div class="li-t">Carer handoff briefing</div><div class="li-s">Summarise the shift for the next carer</div></div></div>
+      <div class="li" data-go="screen-peace"><div class="li-icon rose">💛</div><div><div class="li-t">Take a break — you deserve it</div><div class="li-s">Breathing exercises and a moment for you</div></div></div>
     </div>
   </div>
 
   <!-- All features grid -->
   <div class="section-label mt-32">All features</div>
   <div class="feature-grid">
-    <div class="card card-feat" onclick="App.go('screen-glossary')"><div class="fe">📖</div><div class="ft">Glossary</div><div class="fs">Medical terms, simply</div></div>
-    <div class="card card-feat" onclick="App.go('screen-symptoms')"><div class="fe">📊</div><div class="ft">Symptoms</div><div class="fs">Track how you feel</div></div>
-    <div class="card card-feat" onclick="App.go('screen-medications')"><div class="fe">💊</div><div class="ft">Medications</div><div class="fs">Doses &amp; reminders</div></div>
-    <div class="card card-feat" onclick="App.go('screen-appointments')"><div class="fe">📅</div><div class="ft">Appointments</div><div class="fs">Questions &amp; notes</div></div>
-    <div class="card card-feat" onclick="App.go('screen-gooddays')"><div class="fe">✨</div><div class="ft">Good Days Jar</div><div class="fs">Moments of light</div></div>
-    <div class="card card-feat" onclick="App.go('screen-peace')"><div class="fe">🧘</div><div class="ft">Peace</div><div class="fs">Breathe &amp; ground</div></div>
-    <div class="card card-feat" onclick="App.go('screen-journal')"><div class="fe">📝</div><div class="ft">Journal</div><div class="fs">Private thoughts</div></div>
-    <div class="card card-feat" onclick="App.go('screen-resources')"><div class="fe">ℹ️</div><div class="ft">Resources</div><div class="fs">Support services</div></div>
+    <div class="card card-feat" data-go="screen-glossary"><div class="fe">📖</div><div class="ft">Glossary</div><div class="fs">Medical terms, simply</div></div>
+    <div class="card card-feat" data-go="screen-symptoms"><div class="fe">📊</div><div class="ft">Symptoms</div><div class="fs">Track how you feel</div></div>
+    <div class="card card-feat" data-go="screen-medications"><div class="fe">💊</div><div class="ft">Medications</div><div class="fs">Doses &amp; reminders</div></div>
+    <div class="card card-feat" data-go="screen-appointments"><div class="fe">📅</div><div class="ft">Appointments</div><div class="fs">Questions &amp; notes</div></div>
+    <div class="card card-feat" data-go="screen-gooddays"><div class="fe">✨</div><div class="ft">Good Days Jar</div><div class="fs">Moments of light</div></div>
+    <div class="card card-feat" data-go="screen-peace"><div class="fe">🧘</div><div class="ft">Peace</div><div class="fs">Breathe &amp; ground</div></div>
+    <div class="card card-feat" data-go="screen-journal"><div class="fe">📝</div><div class="ft">Journal</div><div class="fs">Private thoughts</div></div>
+    <div class="card card-feat" data-go="screen-resources"><div class="fe">ℹ️</div><div class="ft">Resources</div><div class="fs">Support services</div></div>
   </div>
 
   <!-- Crisis -->
-  <div class="mt-24"><button class="btn btn-crisis w-full" onclick="App.go('screen-crisis')">🆘 &nbsp;I Need Help Right Now</button><p class="hint text-center mt-8">Crisis support, breathing exercises, and immediate help</p></div>
+  <div class="mt-24"><button class="btn btn-crisis w-full" data-go="screen-crisis">🆘 &nbsp;I Need Help Right Now</button><p class="hint text-center mt-8">Crisis support, breathing exercises, and immediate help</p></div>
 
   <!-- Data management -->
   <div class="mt-32 border-top pt-24">
     <div class="row-gap8">
-      <button class="btn btn-secondary btn-sm flex1" onclick="App.exportData()">💾 Save my data</button>
-      <button class="btn btn-secondary btn-sm flex1" onclick="document.getElementById('import-file').click()">📂 Restore data</button>
-      <input type="file" id="import-file" accept=".besideyou" style="display:none" onchange="App.importData(event)">
+      <button class="btn btn-secondary btn-sm flex1" data-action="exportData">💾 Save my data</button>
+      <button class="btn btn-secondary btn-sm flex1" data-trigger="import-file">📂 Restore data</button>
+      <input type="file" id="import-file" accept=".besideyou" style="display:none">
     </div>
     <p class="hint text-center mt-8 lh15">Your data lives in this browser. Save a backup to keep it safe.<br>Use restore to continue on a different device.</p>
   </div>
@@ -196,70 +197,70 @@
 
 <!-- ===== CHECK-IN ===== -->
 <div class="screen" id="screen-checkin">
-<div class="screen-header"><button class="back-btn" onclick="App.go('screen-home')">←</button><h2>Today's check-in</h2></div>
+<div class="screen-header"><button class="back-btn" data-go="screen-home">←</button><h2>Today's check-in</h2></div>
 <div class="screen-body">
   <p class="hint italic mb-24">Skip anything you don't want to answer. Even one answer helps.</p>
   <h3 class="mb-12">How are you feeling today?</h3>
   <div class="mood-grid" id="mood-grid">
-    <button class="mood-btn" data-mood="awful" onclick="App.pickMood(this)"><span class="me">😔</span>Awful</button>
-    <button class="mood-btn" data-mood="rough" onclick="App.pickMood(this)"><span class="me">😕</span>Rough</button>
-    <button class="mood-btn" data-mood="okay" onclick="App.pickMood(this)"><span class="me">😐</span>Okay</button>
-    <button class="mood-btn" data-mood="good" onclick="App.pickMood(this)"><span class="me">🙂</span>Good</button>
-    <button class="mood-btn" data-mood="great" onclick="App.pickMood(this)"><span class="me">😊</span>Great</button>
+    <button class="mood-btn" data-mood="awful"><span class="me">😔</span>Awful</button>
+    <button class="mood-btn" data-mood="rough"><span class="me">😕</span>Rough</button>
+    <button class="mood-btn" data-mood="okay"><span class="me">😐</span>Okay</button>
+    <button class="mood-btn" data-mood="good"><span class="me">🙂</span>Good</button>
+    <button class="mood-btn" data-mood="great"><span class="me">😊</span>Great</button>
   </div>
   <h3 class="mt-24 mb-12">Anything bothering you physically?</h3>
   <div class="pill-wrap" id="checkin-symptoms">
-    <button class="pill" onclick="this.classList.toggle('active')">Fatigue</button>
-    <button class="pill" onclick="this.classList.toggle('active')">Nausea</button>
-    <button class="pill" onclick="this.classList.toggle('active')">Pain</button>
-    <button class="pill" onclick="this.classList.toggle('active')">No appetite</button>
-    <button class="pill" onclick="this.classList.toggle('active')">Can't sleep</button>
-    <button class="pill" onclick="this.classList.toggle('active')">Dizzy</button>
-    <button class="pill" onclick="this.classList.toggle('active')">Mouth sores</button>
-    <button class="pill" onclick="this.classList.toggle('active')">Tingling</button>
-    <button class="pill" onclick="this.classList.toggle('active')">Anxiety</button>
-    <button class="pill" onclick="this.classList.toggle('active')">Other</button>
+    <button class="pill" data-toggle>Fatigue</button>
+    <button class="pill" data-toggle>Nausea</button>
+    <button class="pill" data-toggle>Pain</button>
+    <button class="pill" data-toggle>No appetite</button>
+    <button class="pill" data-toggle>Can't sleep</button>
+    <button class="pill" data-toggle>Dizzy</button>
+    <button class="pill" data-toggle>Mouth sores</button>
+    <button class="pill" data-toggle>Tingling</button>
+    <button class="pill" data-toggle>Anxiety</button>
+    <button class="pill" data-toggle>Other</button>
   </div>
   <h3 class="mt-24 mb-8">Anything else on your mind?</h3>
   <textarea id="ci-notes" placeholder="A question for the doctor, something you noticed, how the day went..." rows="3"></textarea>
   <h3 class="mt-24 mb-8">What was one small good thing today?</h3>
   <textarea id="ci-good" placeholder="A cup of tea. A text from someone. Sunshine through the window..." rows="2"></textarea>
-  <button class="btn btn-primary mt-24" onclick="App.saveCheckin()">Save today's check-in</button>
-  <button class="btn btn-ghost mt-8" onclick="App.go('screen-home')">Skip for now — no pressure</button>
+  <button class="btn btn-primary mt-24" data-action="saveCheckin">Save today's check-in</button>
+  <button class="btn btn-ghost mt-8" data-go="screen-home">Skip for now — no pressure</button>
 </div>
 </div>
 
 <!-- ===== SYMPTOMS ===== -->
 <div class="screen" id="screen-symptoms">
-<div class="screen-header"><button class="back-btn" onclick="App.go('screen-home')">←</button><h2>Symptom Tracker</h2></div>
+<div class="screen-header"><button class="back-btn" data-go="screen-home">←</button><h2>Symptom Tracker</h2></div>
 <div class="screen-body">
   <p class="sub mb-20">Tracking symptoms helps you have clearer conversations with your care team. You don't have to track everything — even noting one symptom can help.</p>
-  <button class="btn btn-primary mb-16" onclick="App.openModal('modal-symptom')">+ Log a symptom</button>
+  <button class="btn btn-primary mb-16" data-modal="modal-symptom">+ Log a symptom</button>
   <div id="symptom-list"></div>
 </div>
 </div>
 
 <!-- ===== MEDICATIONS ===== -->
 <div class="screen" id="screen-medications">
-<div class="screen-header"><button class="back-btn" onclick="App.go('screen-home')">←</button><h2>Medications</h2></div>
+<div class="screen-header"><button class="back-btn" data-go="screen-home">←</button><h2>Medications</h2></div>
 <div class="screen-body">
   <p class="sub mb-20">Keep track of what you're taking, when, and any effects you notice. This helps your care team see the full picture.</p>
-  <button class="btn btn-primary mb-16" onclick="App.openModal('modal-med')">+ Add a medication</button>
+  <button class="btn btn-primary mb-16" data-modal="modal-med">+ Add a medication</button>
   <div id="med-list"></div>
 </div>
 </div>
 
 <!-- ===== APPOINTMENTS ===== -->
 <div class="screen" id="screen-appointments">
-<div class="screen-header"><button class="back-btn" onclick="App.go('screen-home')">←</button><h2>Appointments</h2></div>
+<div class="screen-header"><button class="back-btn" data-go="screen-home">←</button><h2>Appointments</h2></div>
 <div class="screen-body">
   <p class="sub mb-20">Keep your appointments, questions, and notes together. Patients forget 40–80% of what doctors say — writing it down helps.</p>
-  <button class="btn btn-primary mb-16" onclick="App.openModal('modal-appt')">+ Add an appointment</button>
+  <button class="btn btn-primary mb-16" data-modal="modal-appt">+ Add an appointment</button>
   <h3 class="mb-8">Questions for the doctor</h3>
   <p class="hint mb-12">Add questions as you think of them. Bring this list to your next visit.</p>
   <div class="row-gap8">
     <input type="text" id="dq-input" placeholder="Type a question..." class="flex1">
-    <button class="btn btn-secondary btn-sm" onclick="App.addDQ()" style="width:auto;padding:10px 16px">Add</button>
+    <button class="btn btn-secondary btn-sm" data-action="addDQ" style="width:auto;padding:10px 16px">Add</button>
   </div>
   <div id="dq-list" class="mt-12"></div>
   <div class="section-label mt-24">Upcoming appointments</div>
@@ -269,7 +270,7 @@
 
 <!-- ===== GOOD DAYS JAR ===== -->
 <div class="screen" id="screen-gooddays">
-<div class="screen-header"><button class="back-btn" onclick="App.go('screen-home')">←</button><h2>Good Days Jar</h2></div>
+<div class="screen-header"><button class="back-btn" data-go="screen-home">←</button><h2>Good Days Jar</h2></div>
 <div class="screen-body">
   <div class="text-center mb-24">
     <div style="font-size:3.5rem;margin-bottom:12px">✨</div>
@@ -279,7 +280,7 @@
   </div>
   <div class="row-gap8 mb-20">
     <input type="text" id="gd-input" placeholder="What was a small good thing today?" class="flex1">
-    <button class="btn btn-primary btn-sm" onclick="App.addGoodDay()" style="width:auto;padding:10px 20px">✨</button>
+    <button class="btn btn-primary btn-sm" data-action="addGoodDay" style="width:auto;padding:10px 20px">✨</button>
   </div>
   <div id="gd-list"></div>
 </div>
@@ -287,7 +288,7 @@
 
 <!-- ===== PEACE ===== -->
 <div class="screen" id="screen-peace">
-<div class="screen-header"><button class="back-btn" onclick="App.go('screen-home')">←</button><h2>Moments of Peace</h2></div>
+<div class="screen-header"><button class="back-btn" data-go="screen-home">←</button><h2>Moments of Peace</h2></div>
 <div class="screen-body">
   <div class="text-center mb-32">
     <p class="serif-body" style="font-size:1.15rem">Take a moment. You deserve it.</p>
@@ -298,7 +299,7 @@
     <h3>Breathing Exercise</h3>
     <p class="sub sm mt-6 mb-20">A gentle guided breathing to calm your nervous system.</p>
     <div class="breath-circle" id="breath-circle"><span id="breath-text">Tap to begin</span></div>
-    <button class="btn btn-secondary btn-sm mt-16" onclick="App.startBreathing()" id="breath-btn" style="width:auto;margin:16px auto 0">Start breathing</button>
+    <button class="btn btn-secondary btn-sm mt-16" data-action="startBreathing" id="breath-btn" style="width:auto;margin:16px auto 0">Start breathing</button>
   </div>
   <div class="card" style="padding:24px;margin-bottom:12px">
     <div class="text-center"><div style="font-size:1.5rem;margin-bottom:12px">💗</div><h3>5-4-3-2-1 Grounding</h3><p class="sub sm mt-6 mb-16">Connect with the present moment using your senses.</p></div>
@@ -316,11 +317,11 @@
 
 <!-- ===== JOURNAL ===== -->
 <div class="screen" id="screen-journal">
-<div class="screen-header"><button class="back-btn" onclick="App.go('screen-home')">←</button><h2>Journal</h2></div>
+<div class="screen-header"><button class="back-btn" data-go="screen-home">←</button><h2>Journal</h2></div>
 <div class="screen-body">
   <p class="sub mb-20">A private space for your thoughts. No one sees this but you.</p>
   <textarea id="journal-input" placeholder="Whatever is on your mind..." rows="6" class="mb-12"></textarea>
-  <button class="btn btn-primary" onclick="App.saveJournal()">Save entry</button>
+  <button class="btn btn-primary" data-action="saveJournal">Save entry</button>
   <div class="section-label mt-24">Previous entries</div>
   <div id="journal-list"></div>
 </div>
@@ -328,18 +329,18 @@
 
 <!-- ===== GLOSSARY ===== -->
 <div class="screen" id="screen-glossary">
-<div class="screen-header"><button class="back-btn" onclick="App.go('screen-home')">←</button><h2>Medical Glossary</h2></div>
+<div class="screen-header"><button class="back-btn" data-go="screen-home">←</button><h2>Medical Glossary</h2></div>
 <div class="screen-body">
   <p class="sub mb-16">Medical terms explained in plain language. Tap any term to learn more.</p>
-  <input type="search" id="glossary-search" placeholder="Search for a term..." oninput="App.filterGlossary()" class="mb-12">
+  <input type="search" id="glossary-search" placeholder="Search for a term..." class="mb-12">
   <div class="pill-wrap mb-16" id="glossary-filters">
-    <button class="pill active" onclick="App.filterGlossaryCat(this,'all')">All</button>
-    <button class="pill" onclick="App.filterGlossaryCat(this,'diagnosis')">Diagnosis</button>
-    <button class="pill" onclick="App.filterGlossaryCat(this,'treatment')">Treatment</button>
-    <button class="pill" onclick="App.filterGlossaryCat(this,'side-effects')">Side Effects</button>
-    <button class="pill" onclick="App.filterGlossaryCat(this,'procedures')">Procedures</button>
-    <button class="pill" onclick="App.filterGlossaryCat(this,'tests')">Tests</button>
-    <button class="pill" onclick="App.filterGlossaryCat(this,'general')">General</button>
+    <button class="pill active" data-gcat="all">All</button>
+    <button class="pill" data-gcat="diagnosis">Diagnosis</button>
+    <button class="pill" data-gcat="treatment">Treatment</button>
+    <button class="pill" data-gcat="side-effects">Side Effects</button>
+    <button class="pill" data-gcat="procedures">Procedures</button>
+    <button class="pill" data-gcat="tests">Tests</button>
+    <button class="pill" data-gcat="general">General</button>
   </div>
   <div id="glossary-list"></div>
 </div>
@@ -347,7 +348,7 @@
 
 <!-- ===== RESOURCES ===== -->
 <div class="screen" id="screen-resources">
-<div class="screen-header"><button class="back-btn" onclick="App.go('screen-home')">←</button><h2>Resources</h2></div>
+<div class="screen-header"><button class="back-btn" data-go="screen-home">←</button><h2>Resources</h2></div>
 <div class="screen-body">
   <p class="sub mb-12">Australian support services for patients and carers. All free.</p>
   <div class="crisis-box mb-20">
@@ -357,12 +358,12 @@
     <div class="crisis-line"><span>Beyond Blue</span><a href="tel:1300224636">📞 1300 22 4636</a></div>
   </div>
   <div class="pill-wrap mb-16">
-    <button class="pill active" onclick="App.filterRes(this,'all')">All</button>
-    <button class="pill" onclick="App.filterRes(this,'emotional')">Emotional</button>
-    <button class="pill" onclick="App.filterRes(this,'practical')">Practical</button>
-    <button class="pill" onclick="App.filterRes(this,'financial')">Financial</button>
-    <button class="pill" onclick="App.filterRes(this,'medical')">Medical</button>
-    <button class="pill" onclick="App.filterRes(this,'carer')">Carers</button>
+    <button class="pill active" data-rcat="all">All</button>
+    <button class="pill" data-rcat="emotional">Emotional</button>
+    <button class="pill" data-rcat="practical">Practical</button>
+    <button class="pill" data-rcat="financial">Financial</button>
+    <button class="pill" data-rcat="medical">Medical</button>
+    <button class="pill" data-rcat="carer">Carers</button>
   </div>
   <div id="resources-list"></div>
   <p class="hint text-center mt-24">All resources are Australian and free to access.</p>
@@ -390,19 +391,19 @@
   <div class="text-center mt-24 mb-32">
     <h3 class="mb-8">🌬️ Need to calm down first?</h3>
     <p class="sub mb-16">Sometimes we need a moment to breathe before we can reach out.</p>
-    <button class="btn btn-secondary" onclick="App.go('screen-peace')" style="width:auto;padding:12px 28px">💚 Breathing Exercise</button>
+    <button class="btn btn-secondary" data-go="screen-peace" style="width:auto;padding:12px 28px">💚 Breathing Exercise</button>
   </div>
   <div class="closing-card text-center">
     <p class="serif-body" style="font-size:1.1rem">You are still here. That matters.</p>
     <p class="sub mt-12">Whatever you are facing right now, you do not have to face it alone. Reaching out for help is a sign of strength, not weakness.</p>
   </div>
-  <button class="btn btn-ghost mt-24" onclick="App.go('screen-home')">← Back to Home</button>
+  <button class="btn btn-ghost mt-24" data-go="screen-home">← Back to Home</button>
 </div>
 </div>
 
 <!-- ===== HANDOFF ===== -->
 <div class="screen" id="screen-handoff">
-<div class="screen-header"><button class="back-btn" onclick="App.go('screen-home')">←</button><h2>Carer Handoff</h2></div>
+<div class="screen-header"><button class="back-btn" data-go="screen-home">←</button><h2>Carer Handoff</h2></div>
 <div class="screen-body">
   <p class="sub mb-8">When you hand over to the next carer, this helps them know what happened on your shift.</p>
   <p class="hint italic mb-24">The hardest part of caregiving isn't the medical care — it's the handoff between tired humans.</p>
@@ -412,8 +413,8 @@
     <div><h3 class="mb-8">Things to know</h3><textarea id="ho-notes" placeholder="Anxious about the scan tomorrow. Don't mention the hospital until after lunch..." rows="3"></textarea></div>
     <div><h3 class="mb-8">What's coming up</h3><textarea id="ho-upcoming" placeholder="Next medication at 6pm. Appointment tomorrow at 10am..." rows="2"></textarea></div>
   </div>
-  <button class="btn btn-primary mt-24" onclick="App.saveHandoff()">Save handoff briefing</button>
-  <button class="btn btn-secondary mt-8" onclick="App.copyHandoff()">📋 Copy to clipboard</button>
+  <button class="btn btn-primary mt-24" data-action="saveHandoff">Save handoff briefing</button>
+  <button class="btn btn-secondary mt-8" data-action="copyHandoff">📋 Copy to clipboard</button>
   <div class="section-label mt-24">Previous handoffs</div>
   <div id="handoff-list"></div>
 </div>
@@ -421,11 +422,11 @@
 
 <!-- ===== MODALS ===== -->
 <div class="modal-overlay" id="modal-symptom"><div class="modal-content">
-  <div class="row-between mb-16"><h2>Log a symptom</h2><button class="back-btn" onclick="App.closeModal('modal-symptom')">✕</button></div>
+  <div class="row-between mb-16"><h2>Log a symptom</h2><button class="back-btn" data-close="modal-symptom">✕</button></div>
   <div class="stack">
     <div><label class="label">What symptom?</label>
       <div class="pill-wrap mb-8">
-        <button class="pill" onclick="App.pickSymType(this)">Fatigue</button><button class="pill" onclick="App.pickSymType(this)">Nausea</button><button class="pill" onclick="App.pickSymType(this)">Pain</button><button class="pill" onclick="App.pickSymType(this)">No appetite</button><button class="pill" onclick="App.pickSymType(this)">Can't sleep</button><button class="pill" onclick="App.pickSymType(this)">Anxiety</button><button class="pill" onclick="App.pickSymType(this)">Dizzy</button><button class="pill" onclick="App.pickSymType(this)">Mouth sores</button>
+        <button class="pill" data-sym>Fatigue</button><button class="pill" data-sym>Nausea</button><button class="pill" data-sym>Pain</button><button class="pill" data-sym>No appetite</button><button class="pill" data-sym>Can't sleep</button><button class="pill" data-sym>Anxiety</button><button class="pill" data-sym>Dizzy</button><button class="pill" data-sym>Mouth sores</button>
       </div>
       <input type="text" id="sym-name" placeholder="Or type your own...">
     </div>
@@ -434,11 +435,11 @@
     </div>
     <div><label class="label">Any notes?</label><textarea id="sym-notes" placeholder="When it started, what makes it better or worse..." rows="2"></textarea></div>
   </div>
-  <button class="btn btn-primary mt-16" onclick="App.saveSymptom()">Save symptom</button>
+  <button class="btn btn-primary mt-16" data-action="saveSymptom">Save symptom</button>
 </div></div>
 
 <div class="modal-overlay" id="modal-med"><div class="modal-content">
-  <div class="row-between mb-16"><h2>Add medication</h2><button class="back-btn" onclick="App.closeModal('modal-med')">✕</button></div>
+  <div class="row-between mb-16"><h2>Add medication</h2><button class="back-btn" data-close="modal-med">✕</button></div>
   <div class="stack">
     <div><label class="label">Medication name</label><input type="text" id="med-name" placeholder="e.g., Paracetamol, Ondansetron..."></div>
     <div><label class="label">Dose</label><input type="text" id="med-dose" placeholder="e.g., 500mg, 1 tablet..."></div>
@@ -446,11 +447,11 @@
     <div><label class="label">What it's for</label><input type="text" id="med-purpose" placeholder="e.g., Pain relief, anti-nausea..."></div>
     <div><label class="label">Questions about this medication</label><textarea id="med-q" placeholder="Can I take it with food? What if I miss a dose?" rows="2"></textarea></div>
   </div>
-  <button class="btn btn-primary mt-16" onclick="App.saveMed()">Save medication</button>
+  <button class="btn btn-primary mt-16" data-action="saveMed">Save medication</button>
 </div></div>
 
 <div class="modal-overlay" id="modal-appt"><div class="modal-content">
-  <div class="row-between mb-16"><h2>Add appointment</h2><button class="back-btn" onclick="App.closeModal('modal-appt')">✕</button></div>
+  <div class="row-between mb-16"><h2>Add appointment</h2><button class="back-btn" data-close="modal-appt">✕</button></div>
   <div class="stack">
     <div><label class="label">What kind?</label><input type="text" id="appt-type" placeholder="e.g., Oncologist, Blood test, Scan..."></div>
     <div><label class="label">Date</label><input type="date" id="appt-date"></div>
@@ -458,467 +459,38 @@
     <div><label class="label">Where</label><input type="text" id="appt-loc" placeholder="Hospital, clinic, doctor's rooms..."></div>
     <div><label class="label">Notes</label><textarea id="appt-notes" placeholder="What to bring, who to ask for..." rows="2"></textarea></div>
   </div>
-  <button class="btn btn-primary mt-16" onclick="App.saveAppt()">Save appointment</button>
+  <button class="btn btn-primary mt-16" data-action="saveAppt">Save appointment</button>
 </div></div>
 
 <div class="modal-overlay" id="modal-export"><div class="modal-content">
-  <div class="row-between mb-16"><h2>Save your data</h2><button class="back-btn" onclick="App.closeModal('modal-export')">✕</button></div>
+  <div class="row-between mb-16"><h2>Save your data</h2><button class="back-btn" data-close="modal-export">✕</button></div>
   <p class="sub mb-16">Choose a word or phrase to protect your file. You'll need this to open it again.</p>
   <input type="password" id="exp-pass" placeholder="Your passphrase..." class="mb-8">
   <input type="password" id="exp-pass2" placeholder="Confirm passphrase..." class="mb-16">
-  <button class="btn btn-primary" onclick="App.doExport()">Download encrypted backup</button>
+  <button class="btn btn-primary" data-action="doExport">Download encrypted backup</button>
   <p class="hint text-center mt-12">Without your passphrase, no one can read it — including us.</p>
 </div></div>
 
 <div class="modal-overlay" id="modal-import"><div class="modal-content">
-  <div class="row-between mb-16"><h2>Restore your data</h2><button class="back-btn" onclick="App.closeModal('modal-import')">✕</button></div>
+  <div class="row-between mb-16"><h2>Restore your data</h2><button class="back-btn" data-close="modal-import">✕</button></div>
   <p class="sub mb-16">Enter the passphrase you used when you saved this file.</p>
   <input type="password" id="imp-pass" placeholder="Your passphrase...">
-  <button class="btn btn-primary mt-12" onclick="App.doImport()">Restore</button>
+  <button class="btn btn-primary mt-12" data-action="doImport">Restore</button>
 </div></div>
 
 <!-- FAB + Nav -->
-<button class="crisis-fab" id="crisis-fab" onclick="App.go('screen-crisis')">SOS</button>
+<button class="crisis-fab" id="crisis-fab" data-go="screen-crisis">SOS</button>
 <nav class="bottom-nav" id="bottom-nav" style="display:none">
-  <button class="nav-item active" onclick="App.nav('screen-home',this)"><span class="ni">🏠</span>Home</button>
-  <button class="nav-item" onclick="App.nav('screen-symptoms',this)"><span class="ni">📊</span>Symptoms</button>
-  <button class="nav-item" onclick="App.nav('screen-medications',this)"><span class="ni">💊</span>Meds</button>
-  <button class="nav-item" onclick="App.nav('screen-gooddays',this)"><span class="ni">✨</span>Jar</button>
-  <button class="nav-item" onclick="App.nav('screen-resources',this)"><span class="ni">ℹ️</span>Help</button>
+  <button class="nav-item active" data-nav="screen-home"><span class="ni">🏠</span>Home</button>
+  <button class="nav-item" data-nav="screen-symptoms"><span class="ni">📊</span>Symptoms</button>
+  <button class="nav-item" data-nav="screen-medications"><span class="ni">💊</span>Meds</button>
+  <button class="nav-item" data-nav="screen-gooddays"><span class="ni">✨</span>Jar</button>
+  <button class="nav-item" data-nav="screen-resources"><span class="ni">ℹ️</span>Help</button>
 </nav>
 <div class="toast" id="toast"></div>
 </div>
 
-<script>
-// ===== DATA =====
-var GLOSSARY = [
-  {term:"Metastatic",def:"When cancer has spread from where it started to another part of the body. For example, breast cancer that spreads to the bones is still breast cancer, not bone cancer.",cat:"diagnosis"},
-  {term:"Chemotherapy",def:"Treatment that uses medicines to kill cancer cells or stop them from growing. It can be given as a drip into a vein, as tablets, or sometimes as a cream. Tell your care team about any side effects — they can often help.",cat:"treatment"},
-  {term:"Oncologist",def:"A doctor who specialises in treating cancer. There are different types: medical oncologists (medicines), radiation oncologists (radiation therapy), and surgical oncologists (surgery).",cat:"general"},
-  {term:"Biopsy",def:"A small sample of tissue taken from your body to be looked at under a microscope. It helps doctors work out if cancer is present and what type it is.",cat:"procedures"},
-  {term:"Radiation Therapy",def:"Treatment that uses high-energy rays (like X-rays) to kill cancer cells. It's usually targeted at the specific area where the cancer is. Also called radiotherapy.",cat:"treatment"},
-  {term:"Staging",def:"Working out how far the cancer has spread. Stages are usually numbered 1 to 4, with stage 1 being the earliest. Staging helps your team plan the best treatment.",cat:"diagnosis"},
-  {term:"Remission",def:"When cancer has reduced in size or is no longer detectable. Complete remission means no signs can be found. Partial remission means the cancer has shrunk but hasn't gone completely.",cat:"diagnosis"},
-  {term:"Fatigue",def:"Extreme tiredness that doesn't get better with rest. It's one of the most common side effects of cancer treatment. Let your care team know — there may be things that can help.",cat:"side-effects"},
-  {term:"Nausea",def:"Feeling sick to your stomach. Very common during chemotherapy. Anti-nausea medication can help a lot — don't hesitate to ask for it.",cat:"side-effects"},
-  {term:"Immunotherapy",def:"Treatment that helps your own immune system recognise and fight cancer cells. It works differently from chemotherapy and can have different side effects.",cat:"treatment"},
-  {term:"Palliative Care",def:"Care focused on improving quality of life and managing symptoms. Palliative care can be given alongside curative treatment — it's not just for end of life. It's about feeling as well as possible.",cat:"treatment"},
-  {term:"Neutropenia",def:"When your white blood cell count is very low, making you more vulnerable to infections. Common during chemotherapy. Contact your care team immediately if you develop a fever.",cat:"side-effects"},
-  {term:"CT Scan",def:"A scan that takes detailed pictures of the inside of your body using X-rays from different angles. You might need to drink a special liquid or have dye injected. It's painless but can feel a bit claustrophobic.",cat:"tests"},
-  {term:"Tumour Marker",def:"Substances in the blood that can be higher when cancer is present. They're used to monitor how treatment is working, not usually to diagnose cancer on their own.",cat:"tests"},
-  {term:"Lymph Nodes",def:"Small, bean-shaped organs that filter fluid and help fight infection. Cancer can sometimes spread to nearby lymph nodes. Your doctor may check them during diagnosis.",cat:"general"},
-  {term:"MRI",def:"A scan that uses magnets and radio waves to create detailed pictures. No radiation is involved. It can be noisy — you'll usually be given earplugs or headphones.",cat:"tests"},
-  {term:"PET Scan",def:"A scan that shows how active cells are in your body. Cancer cells are often more active. A small amount of radioactive sugar is injected — it's safe and leaves your body naturally.",cat:"tests"},
-  {term:"Prognosis",def:"An estimate of how the cancer is likely to progress and respond to treatment. It's based on statistics and everyone's experience is different. Ask your doctor what this means for you specifically.",cat:"diagnosis"},
-  {term:"Benign",def:"Not cancer. A benign tumour doesn't spread to other parts of the body. It may still need treatment if it's causing problems, but it's not cancerous.",cat:"diagnosis"},
-  {term:"Malignant",def:"Cancerous. A malignant tumour can grow and spread to other parts of the body. This is what distinguishes cancer from benign growths.",cat:"diagnosis"},
-  {term:"Neuropathy",def:"Numbness, tingling, or pain in the hands and feet. A common side effect of some chemotherapy drugs. Tell your care team — they may be able to adjust your treatment.",cat:"side-effects"},
-  {term:"Infusion",def:"When medication is given slowly through a drip into a vein. Chemotherapy infusions can take anywhere from 30 minutes to several hours. Bring something to read or watch.",cat:"procedures"},
-  {term:"Blood Count",def:"A blood test that measures different types of cells in your blood — red cells, white cells, and platelets. It's done regularly during treatment to check how your body is coping.",cat:"tests"},
-  {term:"Adjuvant Therapy",def:"Treatment given after the main treatment (usually surgery) to lower the risk of cancer coming back. This might be chemotherapy, radiation, or hormone therapy.",cat:"treatment"},
-  {term:"Neoadjuvant Therapy",def:"Treatment given before the main treatment (usually surgery) to shrink the tumour first. This can make surgery easier or more effective.",cat:"treatment"},
-  {term:"Alopecia",def:"Hair loss. A common side effect of some chemotherapy drugs. Hair usually grows back after treatment ends. Ask about scalp cooling if this is a concern for you.",cat:"side-effects"},
-  {term:"Mucositis",def:"Soreness, redness, or ulcers in the mouth and throat. Can make eating and drinking painful. Let your care team know — there are mouthwashes and medications that help.",cat:"side-effects"},
-  {term:"Port-a-Cath",def:"A small device placed under the skin, usually in the chest, to make it easier to give chemotherapy and take blood. It means fewer needle sticks. Also called a port.",cat:"procedures"},
-  {term:"PICC Line",def:"A thin tube inserted into a vein in your arm that reaches close to your heart. Used for giving chemotherapy or taking blood. It stays in for weeks or months.",cat:"procedures"},
-  {term:"Oedema",def:"Swelling caused by fluid building up in body tissues. It can happen as a side effect of treatment or if lymph nodes have been removed. Gentle movement and compression can help.",cat:"side-effects"},
-  {term:"Pathology",def:"The study of tissue samples to diagnose disease. After a biopsy, a pathologist examines the tissue under a microscope. The pathology report tells your team about the cancer.",cat:"tests"},
-  {term:"Grading",def:"How different the cancer cells look compared to normal cells. Low grade (1) means the cells look more normal and tend to grow slowly. High grade (3) means they look very different and may grow faster.",cat:"diagnosis"},
-  {term:"Hormone Therapy",def:"Treatment that blocks or lowers hormones that help some cancers grow. Used for cancers like breast and prostate that are hormone-sensitive. Given as tablets or injections.",cat:"treatment"},
-  {term:"Targeted Therapy",def:"Treatment that targets specific features of cancer cells. Unlike chemotherapy, it's designed to affect cancer cells more than normal cells, which can mean fewer side effects.",cat:"treatment"},
-  {term:"Clinical Trial",def:"A research study testing new treatments. Participation is voluntary and you can withdraw at any time. Ask your oncologist if there are any trials that might be suitable for you.",cat:"general"},
-  {term:"Multidisciplinary Team",def:"A group of different health professionals who work together to plan your treatment. This usually includes surgeons, oncologists, nurses, and other specialists. Sometimes called an MDT.",cat:"general"},
-  {term:"Scanxiety",def:"The anxiety and worry that comes before or while waiting for scan results. It's extremely common and completely normal. Talk to your care team or a counsellor if it's overwhelming.",cat:"general"},
-  {term:"Survivorship",def:"Life after cancer treatment ends. It includes follow-up care, managing long-term effects, and adjusting to a new normal. Many hospitals have survivorship programs.",cat:"general"},
-  {term:"Antiemetic",def:"Medication that prevents or reduces nausea and vomiting. Your care team will usually give you these before and after chemotherapy. Don't wait until you feel sick — take them as prescribed.",cat:"treatment"},
-  {term:"Bone Marrow",def:"The soft tissue inside your bones that makes blood cells. Some cancers affect the bone marrow directly, and some treatments can temporarily reduce its ability to make new blood cells.",cat:"general"},
-  {term:"Platelets",def:"Tiny blood cells that help your blood clot. Chemotherapy can lower your platelet count, making you bruise or bleed more easily. Your team monitors this with blood tests.",cat:"general"}
-];
-var RESOURCES = [
-  {name:"Cancer Council Counselling",desc:"Free counselling for people affected by cancer. Available in person, by phone, or online.",cat:"emotional",who:"patients,carers",url:"https://www.cancer.org.au",phone:"13 11 20"},
-  {name:"Look Good Feel Better",desc:"Free workshops helping people manage the appearance-related effects of cancer treatment.",cat:"practical",who:"patients",url:"https://lgfb.org.au"},
-  {name:"Transport to Treatment",desc:"Help getting to and from cancer treatment appointments. Available through Cancer Council.",cat:"practical",who:"patients",url:"https://www.cancer.org.au"},
-  {name:"Accommodation Assistance",desc:"Low-cost accommodation for people who need to travel for treatment.",cat:"practical",who:"patients,carers",url:"https://www.cancer.org.au"},
-  {name:"Centrelink",desc:"Government support payments and services for people affected by cancer, including Sickness Allowance and Carer Payment.",cat:"financial",who:"patients,carers",url:"https://www.servicesaustralia.gov.au"},
-  {name:"Cancer Council Financial Assistance",desc:"Grants and support for people experiencing financial hardship due to cancer.",cat:"financial",who:"patients,carers",url:"https://www.cancer.org.au"},
-  {name:"Carer Gateway",desc:"Australian Government support for carers including respite, counselling, and practical assistance.",cat:"carer",who:"carers",url:"https://www.carergateway.gov.au",phone:"1800 422 737"},
-  {name:"eviQ",desc:"Reliable, evidence-based cancer treatment information written for patients and their families.",cat:"medical",who:"patients,carers",url:"https://www.eviq.org.au"},
-  {name:"Breast Cancer Network Australia",desc:"Support and information specifically for people affected by breast cancer.",cat:"medical",who:"patients,carers",url:"https://www.bcna.org.au"},
-  {name:"Prostate Cancer Foundation",desc:"Support and information for people affected by prostate cancer.",cat:"medical",who:"patients,carers",url:"https://www.pcfa.org.au"},
-  {name:"Leukaemia Foundation",desc:"Support for people with blood cancer including leukaemia, lymphoma, myeloma, and related disorders.",cat:"medical",who:"patients,carers",url:"https://www.leukaemia.org.au"},
-  {name:"Canteen",desc:"Support for young people (12\u201325) affected by cancer \u2014 whether it's their own diagnosis or someone in their family.",cat:"emotional",who:"patients,carers",url:"https://www.canteen.org.au"},
-  {name:"Camp Quality",desc:"Bringing optimism and fun to children (0\u201313) affected by cancer through camps, activities, and family support.",cat:"emotional",who:"patients,carers",url:"https://www.campquality.org.au"},
-  {name:"Cancer Council Online Community",desc:"Connect with other people going through cancer in a safe, moderated online space.",cat:"emotional",who:"patients,carers",url:"https://onlinecommunity.cancer.org.au"},
-  {name:"Peter MacCallum Cancer Centre",desc:"Australia's only public hospital solely dedicated to cancer treatment, research and education.",cat:"medical",who:"patients",url:"https://www.petermac.org"},
-  {name:"Redkite",desc:"Financial, educational, and emotional support for families of children with cancer.",cat:"financial",who:"carers",url:"https://www.redkite.org.au"},
-  {name:"National Disability Insurance Scheme (NDIS)",desc:"May provide support if cancer treatment has resulted in a permanent and significant disability.",cat:"financial",who:"patients",url:"https://www.ndis.gov.au"}
-];
-var CRISIS = {
-  emergency: {number:"000",label:"Call 000 Now"},
-  lines: [
-    {name:"Lifeline",number:"13 11 14",tel:"131114",desc:"24/7 crisis support and suicide prevention. Someone is always there to listen."},
-    {name:"Cancer Council Helpline",number:"13 11 20",tel:"131120",desc:"Free, confidential support from cancer nurses."},
-    {name:"Beyond Blue",number:"1300 22 4636",tel:"1300224636",desc:"24/7 support for anxiety, depression, and emotional wellbeing."}
-  ]
-};
-
-// ===== APP =====
-var App = {
-  state: { role:null, theme:'dark', onboarded:false, checkins:[], symptoms:[], medications:[], appointments:[], gooddays:[], journal:[], doctorQuestions:[], handoffs:[] },
-  _importFile:null, _breathInterval:null, _breathRunning:false, _currentSev:5, _glossaryCat:'all',
-
-  init: function() {
-    this.load();
-    if(this.state.theme==='light') document.documentElement.setAttribute('data-theme','light');
-    document.getElementById('theme-btn').textContent = this.state.theme==='dark'?'\uD83C\uDF19':'\u2600\uFE0F';
-    if(this.state.onboarded && this.state.role) this.go('screen-home');
-    this.buildSev();
-    this.renderAll();
-  },
-
-  save: function() { try{localStorage.setItem('besideyou',JSON.stringify(this.state))}catch(e){} },
-  load: function() { try{var s=localStorage.getItem('besideyou');if(s)this.state=Object.assign({},this.state,JSON.parse(s))}catch(e){} },
-
-  go: function(id) {
-    document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});
-    document.getElementById(id).classList.add('active');
-    var nav=(['screen-welcome','screen-role'].indexOf(id)===-1);
-    document.getElementById('bottom-nav').style.display=nav?'flex':'none';
-    var fab=(['screen-welcome','screen-role','screen-crisis'].indexOf(id)===-1);
-    document.getElementById('crisis-fab').classList.toggle('visible',fab);
-    var nm={'screen-home':0,'screen-symptoms':1,'screen-checkin':1,'screen-medications':2,'screen-gooddays':3,'screen-resources':4,'screen-crisis':4};
-    document.querySelectorAll('.nav-item').forEach(function(n,i){n.classList.toggle('active',i===nm[id])});
-    if(id==='screen-home') this.updateGreeting();
-    window.scrollTo(0,0);
-  },
-  nav: function(s,e){this.go(s)},
-
-  setRole: function(role) {
-    this.state.role=role; this.state.onboarded=true; this.save();
-    document.getElementById('qa-carer').style.display=role==='carer'?'block':'none';
-    document.getElementById('qa-patient').style.display=role==='carer'?'none':'block';
-    this.go('screen-home');
-  },
-
-  toggleTheme: function() {
-    this.state.theme=this.state.theme==='dark'?'light':'dark';
-    if(this.state.theme==='light') document.documentElement.setAttribute('data-theme','light');
-    else document.documentElement.removeAttribute('data-theme');
-    document.getElementById('theme-btn').textContent=this.state.theme==='dark'?'\uD83C\uDF19':'\u2600\uFE0F';
-    this.save();
-  },
-
-  updateGreeting: function() {
-    var h=new Date().getHours();
-    document.getElementById('greeting').textContent=h<12?'Good morning.':h<17?'Good afternoon.':'Good evening.';
-    document.getElementById('qa-carer').style.display=this.state.role==='carer'?'block':'none';
-    document.getElementById('qa-patient').style.display=this.state.role==='carer'?'none':'block';
-  },
-
-  pickMood: function(btn) { document.querySelectorAll('#mood-grid .mood-btn').forEach(function(b){b.classList.remove('active')}); btn.classList.add('active'); },
-  saveCheckin: function() {
-    var moodEl=document.querySelector('#mood-grid .mood-btn.active');
-    var mood=moodEl?moodEl.getAttribute('data-mood'):'';
-    var syms=[];document.querySelectorAll('#checkin-symptoms .pill.active').forEach(function(p){syms.push(p.textContent)});
-    var notes=document.getElementById('ci-notes').value;
-    var good=document.getElementById('ci-good').value;
-    this.state.checkins.unshift({id:Date.now(),date:new Date().toISOString(),mood:mood,symptoms:syms,notes:notes,good:good});
-    if(good.trim()) this.state.gooddays.unshift({id:Date.now()+1,date:new Date().toISOString(),text:good.trim()});
-    this.save(); this.toast('Check-in saved \u2713');
-    document.querySelectorAll('#mood-grid .mood-btn').forEach(function(b){b.classList.remove('active')});
-    document.querySelectorAll('#checkin-symptoms .pill').forEach(function(p){p.classList.remove('active')});
-    document.getElementById('ci-notes').value=''; document.getElementById('ci-good').value='';
-    this.go('screen-home'); this.renderAll();
-  },
-
-  pickSymType: function(btn) {
-    document.querySelectorAll('#modal-symptom .pill').forEach(function(p){p.classList.remove('active')});
-    btn.classList.add('active'); document.getElementById('sym-name').value=btn.textContent;
-  },
-  buildSev: function() {
-    var el=document.getElementById('sev-scale'); if(!el)return; el.innerHTML='';
-    var self=this;
-    for(var i=1;i<=10;i++){(function(n){var b=document.createElement('button');b.className='sev-btn';b.textContent=n;
-    b.onclick=function(){document.querySelectorAll('.sev-btn').forEach(function(x){x.classList.remove('active')});b.classList.add('active');self._currentSev=n;};el.appendChild(b)})(i);}
-  },
-  saveSymptom: function() {
-    var name=document.getElementById('sym-name').value.trim();
-    if(!name){this.toast('Please enter a symptom');return;}
-    this.state.symptoms.unshift({id:Date.now(),date:new Date().toISOString(),name:name,severity:this._currentSev,notes:document.getElementById('sym-notes').value});
-    this.save(); this.closeModal('modal-symptom'); this.toast('Symptom logged \u2713'); this.renderSymptoms();
-  },
-  renderSymptoms: function() {
-    var el=document.getElementById('symptom-list');var self=this;
-    if(!this.state.symptoms.length){el.innerHTML='<div class="empty"><div class="ei">\uD83D\uDC93</div><h3>No symptoms logged yet</h3><p class="sub mt-8">When you\'re ready, tap above to log your first symptom.</p></div>';return;}
-    el.innerHTML=this.state.symptoms.map(function(s){return '<div class="li" style="margin-bottom:8px;cursor:default"><div class="li-icon" style="background:'+(s.severity<=3?'var(--sage)':s.severity<=6?'var(--warm)':'var(--rose)')+';color:#fff;font-size:.8rem;font-weight:600;width:36px;height:36px">'+s.severity+'</div><div style="flex:1;min-width:0"><div class="li-t">'+self.esc(s.name)+'</div><div class="li-s">'+self.fmtDate(s.date)+(s.notes?' \u00B7 '+self.esc(s.notes):'')+'</div></div><button class="del-btn" onclick="App.del(\'symptoms\','+s.id+')">✕</button></div>'}).join('');
-  },
-
-  saveMed: function() {
-    var name=document.getElementById('med-name').value.trim();
-    if(!name){this.toast('Please enter a medication name');return;}
-    this.state.medications.unshift({id:Date.now(),name:name,dose:document.getElementById('med-dose').value,frequency:document.getElementById('med-freq').value,purpose:document.getElementById('med-purpose').value,questions:document.getElementById('med-q').value,date:new Date().toISOString()});
-    this.save(); this.closeModal('modal-med'); this.toast('Medication added \u2713'); this.renderMeds();
-  },
-  renderMeds: function() {
-    var el=document.getElementById('med-list');var self=this;
-    if(!this.state.medications.length){el.innerHTML='<div class="empty"><div class="ei">\uD83D\uDC8A</div><h3>No medications added yet</h3><p class="sub mt-8">Add your medications so you have them all in one place.</p></div>';return;}
-    el.innerHTML=this.state.medications.map(function(m){return '<div class="li" style="margin-bottom:8px;cursor:default"><div class="li-icon warm">\uD83D\uDC8A</div><div style="flex:1;min-width:0"><div class="li-t">'+self.esc(m.name)+(m.dose?' \u2014 '+self.esc(m.dose):'')+'</div><div class="li-s">'+(m.frequency?self.esc(m.frequency):'')+(m.purpose?' \u00B7 '+self.esc(m.purpose):'')+'</div>'+(m.questions?'<div class="li-s" style="color:var(--sky);margin-top:4px">\u2753 '+self.esc(m.questions)+'</div>':'')+'</div><button class="del-btn" onclick="App.del(\'medications\','+m.id+')">✕</button></div>'}).join('');
-  },
-
-  saveAppt: function() {
-    var type=document.getElementById('appt-type').value.trim();
-    if(!type){this.toast('Please enter the appointment type');return;}
-    this.state.appointments.unshift({id:Date.now(),type:type,date:document.getElementById('appt-date').value,time:document.getElementById('appt-time').value,location:document.getElementById('appt-loc').value,notes:document.getElementById('appt-notes').value});
-    this.save(); this.closeModal('modal-appt'); this.toast('Appointment added \u2713'); this.renderAppts();
-  },
-  renderAppts: function() {
-    var el=document.getElementById('appt-list');var self=this;
-    if(!this.state.appointments.length){el.innerHTML='<div class="empty" style="padding:24px"><div class="ei">\uD83D\uDCC5</div><h3>No appointments yet</h3></div>';return;}
-    el.innerHTML=this.state.appointments.map(function(a){return '<div class="li" style="margin-bottom:8px;cursor:default"><div class="li-icon gold">\uD83D\uDCC5</div><div style="flex:1;min-width:0"><div class="li-t">'+self.esc(a.type)+'</div><div class="li-s">'+(a.date?self.fmtDateShort(a.date):'No date')+(a.time?' at '+a.time:'')+(a.location?' \u00B7 '+self.esc(a.location):'')+'</div>'+(a.notes?'<div class="li-s" style="margin-top:4px">'+self.esc(a.notes)+'</div>':'')+'</div><button class="del-btn" onclick="App.del(\'appointments\','+a.id+')">✕</button></div>'}).join('');
-  },
-
-  addDQ: function() {
-    var inp=document.getElementById('dq-input');var q=inp.value.trim();if(!q)return;
-    this.state.doctorQuestions.unshift({id:Date.now(),text:q,done:false});inp.value='';this.save();this.renderDQ();
-  },
-  toggleDQ: function(id) { var q=this.state.doctorQuestions.find(function(x){return x.id===id});if(q)q.done=!q.done;this.save();this.renderDQ(); },
-  renderDQ: function() {
-    var el=document.getElementById('dq-list');var self=this;if(!this.state.doctorQuestions.length){el.innerHTML='';return;}
-    el.innerHTML=this.state.doctorQuestions.map(function(q){return '<div class="dq"><button class="dq-check '+(q.done?'done':'')+'" onclick="App.toggleDQ('+q.id+')">'+(q.done?'\u2713':'')+'</button><div class="dq-text" style="'+(q.done?'text-decoration:line-through;color:var(--t3)':'')+'">'+self.esc(q.text)+'</div><button class="del-btn" onclick="App.del(\'doctorQuestions\','+q.id+')" style="width:24px;height:24px">✕</button></div>'}).join('');
-  },
-
-  addGoodDay: function() {
-    var inp=document.getElementById('gd-input');var t=inp.value.trim();if(!t)return;
-    this.state.gooddays.unshift({id:Date.now(),date:new Date().toISOString(),text:t});inp.value='';this.save();this.toast('Moment saved \u2728');this.renderGoodDays();
-  },
-  renderGoodDays: function() {
-    var el=document.getElementById('gd-list');var self=this;
-    if(!this.state.gooddays.length){el.innerHTML='<div class="empty"><div class="ei">\u2728</div><h3>Your jar is waiting</h3><p class="sub mt-8">Add your first moment above.</p></div>';return;}
-    el.innerHTML=this.state.gooddays.map(function(g){return '<div class="gd-moment"><div class="gd-icon">\u2728</div><div class="gd-body"><div class="gd-text">'+self.esc(g.text)+'</div><div class="gd-date">'+self.fmtDate(g.date)+'</div></div><button class="del-btn" onclick="App.del(\'gooddays\','+g.id+')">✕</button></div>'}).join('');
-  },
-
-  saveJournal: function() {
-    var inp=document.getElementById('journal-input');var t=inp.value.trim();if(!t)return;
-    this.state.journal.unshift({id:Date.now(),date:new Date().toISOString(),text:t});inp.value='';this.save();this.toast('Entry saved \u2713');this.renderJournal();
-  },
-  renderJournal: function() {
-    var el=document.getElementById('journal-list');var self=this;
-    if(!this.state.journal.length){el.innerHTML='<div class="empty"><div class="ei">\uD83D\uDCDD</div><h3>No entries yet</h3><p class="sub mt-8">Write whatever is on your mind.</p></div>';return;}
-    el.innerHTML=this.state.journal.map(function(j){return '<div class="j-entry"><div class="j-date">'+self.fmtDate(j.date)+'</div><div class="j-text">'+self.esc(j.text)+'</div><button class="del-btn mt-8" onclick="App.del(\'journal\','+j.id+')">✕</button></div>'}).join('');
-  },
-
-  filterGlossary: function() {
-    var q=document.getElementById('glossary-search').value.toLowerCase();
-    this.renderGlossary(q);
-  },
-  filterGlossaryCat: function(btn,cat) {
-    document.querySelectorAll('#glossary-filters .pill').forEach(function(p){p.classList.remove('active')});
-    btn.classList.add('active'); this._glossaryCat=cat; this.renderGlossary();
-  },
-  renderGlossary: function(search) {
-    var searchEl=document.getElementById('glossary-search');
-    var q=(search||( searchEl?searchEl.value:'')||'').toLowerCase();
-    var cat=this._glossaryCat;var self=this;
-    var terms=GLOSSARY.filter(function(t){
-      if(cat!=='all'&&t.cat!==cat)return false;
-      if(q&&t.term.toLowerCase().indexOf(q)===-1&&t.def.toLowerCase().indexOf(q)===-1)return false;
-      return true;
-    });
-    var el=document.getElementById('glossary-list');
-    if(!terms.length){el.innerHTML='<div class="empty" style="padding:32px"><p class="sub">No terms found. Try a different search.</p></div>';return;}
-    el.innerHTML=terms.map(function(t){return '<div class="gl-term" onclick="this.classList.toggle(\'open\')"><div class="gl-name">'+self.esc(t.term)+'</div><div class="gl-def">'+self.esc(t.def)+'</div><div class="gl-cat">'+t.cat+'</div></div>'}).join('');
-  },
-
-  filterRes: function(btn,cat) {
-    document.querySelectorAll('#screen-resources .pill').forEach(function(p){p.classList.remove('active')});
-    btn.classList.add('active'); this.renderResources(cat);
-  },
-  renderResources: function(cat) {
-    cat=cat||'all';var self=this;
-    var el=document.getElementById('resources-list');
-    var res=RESOURCES.filter(function(r){return cat==='all'||r.cat===cat});
-    el.innerHTML=res.map(function(r){return '<div class="rcard"><div class="rcard-t">'+self.esc(r.name)+'</div><div class="rcard-d">'+self.esc(r.desc)+'</div><div style="margin-top:8px;display:flex;gap:12px">'+(r.phone?'<a href="tel:'+r.phone.replace(/\s/g,'')+'" class="rcard-a">\uD83D\uDCDE '+r.phone+'</a>':'')+(r.url?'<a href="'+r.url+'" target="_blank" rel="noopener" class="rcard-a">\uD83D\uDD17 Website</a>':'')+'</div><div style="margin-top:6px;display:flex;gap:4px">'+r.who.split(',').map(function(w){return '<span style="font-size:.7rem;padding:2px 8px;border-radius:10px;background:var(--sage-s);color:var(--sage)">'+w.trim()+'</span>'}).join('')+'</div></div>'}).join('');
-  },
-
-  saveHandoff: function() {
-    var meds=document.getElementById('ho-meds').value;
-    var mood=document.getElementById('ho-mood').value;
-    var notes=document.getElementById('ho-notes').value;
-    var upcoming=document.getElementById('ho-upcoming').value;
-    if(!meds&&!mood&&!notes&&!upcoming){this.toast('Add at least one detail');return;}
-    this.state.handoffs.unshift({id:Date.now(),date:new Date().toISOString(),meds:meds,mood:mood,notes:notes,upcoming:upcoming});
-    this.save();this.toast('Handoff saved \u2713');
-    ['ho-meds','ho-mood','ho-notes','ho-upcoming'].forEach(function(id){document.getElementById(id).value=''});
-    this.renderHandoffs();
-  },
-  copyHandoff: function() {
-    var m=document.getElementById('ho-meds').value;var mo=document.getElementById('ho-mood').value;
-    var n=document.getElementById('ho-notes').value;var u=document.getElementById('ho-upcoming').value;
-    var text='CARER HANDOFF \u2014 '+new Date().toLocaleString()+'\n\nMedications: '+(m||'\u2014')+'\nHow they\'re doing: '+(mo||'\u2014')+'\nThings to know: '+(n||'\u2014')+'\nComing up: '+(u||'\u2014');
-    navigator.clipboard.writeText(text).then(function(){App.toast('Copied to clipboard \u2713')}).catch(function(){App.toast('Could not copy')});
-  },
-  renderHandoffs: function() {
-    var el=document.getElementById('handoff-list');var self=this;
-    if(!this.state.handoffs.length){el.innerHTML='';return;}
-    el.innerHTML=this.state.handoffs.slice(0,10).map(function(h){return '<div class="ho-card"><div class="ho-date">'+self.fmtDate(h.date)+'</div>'+(h.meds?'<div class="ho-section"><strong>Meds</strong><p>'+self.esc(h.meds)+'</p></div>':'')+(h.mood?'<div class="ho-section"><strong>Status</strong><p>'+self.esc(h.mood)+'</p></div>':'')+(h.notes?'<div class="ho-section"><strong>Notes</strong><p>'+self.esc(h.notes)+'</p></div>':'')+(h.upcoming?'<div class="ho-section"><strong>Coming up</strong><p>'+self.esc(h.upcoming)+'</p></div>':'')+'<button class="del-btn mt-4" onclick="App.del(\'handoffs\','+h.id+')">✕</button></div>'}).join('');
-  },
-
-  startBreathing: function() {
-    if(this._breathRunning){this.stopBreathing();return;}
-    this._breathRunning=true;
-    document.getElementById('breath-btn').textContent='Stop';
-    var circle=document.getElementById('breath-circle');var text=document.getElementById('breath-text');
-    var phase='inhale';
-    var cycle=function(){
-      if(phase==='inhale'){circle.className='breath-circle inhale';text.textContent='Breathe in...';phase='hold1';}
-      else if(phase==='hold1'){text.textContent='Hold...';phase='exhale';}
-      else if(phase==='exhale'){circle.className='breath-circle exhale';text.textContent='Breathe out...';phase='hold2';}
-      else{text.textContent='Hold...';phase='inhale';}
-    };
-    cycle();
-    this._breathInterval=setInterval(cycle,4000);
-  },
-  stopBreathing: function() {
-    this._breathRunning=false;clearInterval(this._breathInterval);
-    document.getElementById('breath-btn').textContent='Start breathing';
-    document.getElementById('breath-circle').className='breath-circle';
-    document.getElementById('breath-text').textContent='Tap to begin';
-  },
-
-  exportData: function() { this.openModal('modal-export'); },
-  doExport: function() {
-    var self=this;
-    var p1=document.getElementById('exp-pass').value;var p2=document.getElementById('exp-pass2').value;
-    if(!p1){this.toast('Please enter a passphrase');return;}
-    if(p1!==p2){this.toast('Passphrases don\'t match');return;}
-    try {
-      var data=JSON.stringify(this.state);
-      var enc=new TextEncoder();
-      crypto.subtle.importKey('raw',enc.encode(p1),'PBKDF2',false,['deriveKey']).then(function(keyMaterial){
-        var salt=crypto.getRandomValues(new Uint8Array(16));var iv=crypto.getRandomValues(new Uint8Array(12));
-        return crypto.subtle.deriveKey({name:'PBKDF2',salt:salt,iterations:100000,hash:'SHA-256'},keyMaterial,{name:'AES-GCM',length:256},false,['encrypt']).then(function(key){
-          return crypto.subtle.encrypt({name:'AES-GCM',iv:iv},key,enc.encode(data)).then(function(encrypted){
-            var result=new Uint8Array(salt.length+iv.length+encrypted.byteLength);
-            result.set(salt,0);result.set(iv,salt.length);result.set(new Uint8Array(encrypted),salt.length+iv.length);
-            var blob=new Blob([result],{type:'application/octet-stream'});
-            var url=URL.createObjectURL(blob);var a=document.createElement('a');
-            a.href=url;a.download='besideyou-backup-'+new Date().toISOString().slice(0,10)+'.besideyou';
-            a.click();URL.revokeObjectURL(url);
-            self.closeModal('modal-export');self.toast('Backup downloaded \u2713');
-            document.getElementById('exp-pass').value='';document.getElementById('exp-pass2').value='';
-          });
-        });
-      }).catch(function(e){self.toast('Export failed: '+e.message)});
-    } catch(e) { this.toast('Export failed: '+e.message); }
-  },
-  importData: function(event) {
-    var self=this;
-    var file=event.target.files[0];if(!file)return;
-    var reader=new FileReader();
-    reader.onload=function(){self._importFile=reader.result;self.openModal('modal-import');};
-    reader.readAsArrayBuffer(file);
-    event.target.value='';
-  },
-  doImport: function() {
-    var self=this;
-    var pass=document.getElementById('imp-pass').value;
-    if(!pass){this.toast('Please enter your passphrase');return;}
-    try {
-      var data=new Uint8Array(this._importFile);
-      var salt=data.slice(0,16);var iv=data.slice(16,28);var encrypted=data.slice(28);
-      var enc=new TextEncoder();
-      crypto.subtle.importKey('raw',enc.encode(pass),'PBKDF2',false,['deriveKey']).then(function(keyMaterial){
-        return crypto.subtle.deriveKey({name:'PBKDF2',salt:salt,iterations:100000,hash:'SHA-256'},keyMaterial,{name:'AES-GCM',length:256},false,['decrypt']).then(function(key){
-          return crypto.subtle.decrypt({name:'AES-GCM',iv:iv},key,encrypted).then(function(decrypted){
-            var json=new TextDecoder().decode(decrypted);
-            self.state=Object.assign({},self.state,JSON.parse(json));self.save();
-            self.closeModal('modal-import');self.toast('Data restored \u2713');
-            document.getElementById('imp-pass').value='';self.renderAll();
-          });
-        });
-      }).catch(function(){self.toast('Wrong passphrase or corrupted file')});
-    } catch(e) { this.toast('Wrong passphrase or corrupted file'); }
-  },
-
-  openModal: function(id) {
-    if(id==='modal-symptom'){document.getElementById('sym-name').value='';document.getElementById('sym-notes').value='';document.querySelectorAll('#modal-symptom .pill').forEach(function(p){p.classList.remove('active')});document.querySelectorAll('.sev-btn').forEach(function(b){b.classList.remove('active')});this._currentSev=5;}
-    if(id==='modal-med'){['med-name','med-dose','med-freq','med-purpose','med-q'].forEach(function(x){document.getElementById(x).value=''});}
-    if(id==='modal-appt'){['appt-type','appt-date','appt-time','appt-loc','appt-notes'].forEach(function(x){document.getElementById(x).value=''});}
-    document.getElementById(id).classList.add('active');
-  },
-  closeModal: function(id) { document.getElementById(id).classList.remove('active'); },
-
-  del: function(collection, id) {
-    this.state[collection]=this.state[collection].filter(function(x){return x.id!==id});this.save();this.renderAll();
-  },
-
-  renderAll: function() {
-    this.renderSymptoms();this.renderMeds();this.renderAppts();this.renderDQ();
-    this.renderGoodDays();this.renderJournal();this.renderGlossary();this.renderResources();this.renderHandoffs();
-  },
-
-  toast: function(msg) {
-    var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
-    setTimeout(function(){t.classList.remove('show')},2500);
-  },
-
-  esc: function(s) { if(!s)return'';var d=document.createElement('div');d.textContent=s;return d.innerHTML; },
-  fmtDate: function(iso) {
-    try{var d=new Date(iso);return d.toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});}catch(e){return iso;}
-  },
-  fmtDateShort: function(ds) {
-    try{var d=new Date(ds+'T00:00:00');return d.toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short'});}catch(e){return ds;}
-  }
-};
-window.App = App;
-
-// Diagnostic: confirm JS is running by changing page title
-document.title = 'BesideYou \u2713 JS Active';
-
-// Error handler: show any errors visibly on the page
-window.onerror = function(msg, src, line) {
-  var d = document.createElement('div');
-  d.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#d94444;color:#fff;padding:16px;z-index:9999;font-size:14px';
-  d.textContent = 'Error: ' + msg + ' (line ' + line + ')';
-  document.body.insertBefore(d, document.body.firstChild);
-};
-
-// Initialize app with error handling
-try {
-  App.init();
-} catch(e) {
-  var d = document.createElement('div');
-  d.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#d94444;color:#fff;padding:16px;z-index:9999;font-size:14px';
-  d.textContent = 'Init error: ' + e.message;
-  document.body.insertBefore(d, document.body.firstChild);
-}
-
-// Bypass inline onclick: use event delegation with Function() constructor
-// This catches ALL clicks and executes onclick attribute code via global scope
-document.addEventListener('click', function(e) {
-  var el = e.target;
-  while (el && el !== document) {
-    var code = el.getAttribute ? el.getAttribute('onclick') : null;
-    if (code) {
-      try {
-        (new Function('event', code)).call(el, e);
-      } catch(err) {
-        var d = document.createElement('div');
-        d.style.cssText = 'position:fixed;top:40px;left:0;right:0;background:#c4956a;color:#fff;padding:16px;z-index:9999;font-size:14px';
-        d.textContent = 'Click error: ' + err.message + ' on: ' + code;
-        document.body.insertBefore(d, document.body.firstChild);
-      }
-      return;
-    }
-    el = el.parentElement;
-  }
-});
-
-// Wire non-click events
-var importEl = document.getElementById('import-file');
-if (importEl) importEl.addEventListener('change', function(e) { App.importData(e); });
-var searchEl = document.getElementById('glossary-search');
-if (searchEl) searchEl.addEventListener('input', function() { App.filterGlossary(); });
-</script>
+<script src="data.js?v=7"></script>
+<script src="app.js?v=7"></script>
 </body>
 </html>

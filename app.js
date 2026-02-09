@@ -1,313 +1,448 @@
+// BesideYou App v7 — zero inline event handlers
+// All interactions use addEventListener + data attributes.
+// Works even when CSP blocks 'unsafe-inline'.
+
 var App = {
   state: { role:null, theme:'dark', onboarded:false, checkins:[], symptoms:[], medications:[], appointments:[], gooddays:[], journal:[], doctorQuestions:[], handoffs:[] },
   _importFile:null, _breathInterval:null, _breathRunning:false, _currentSev:5, _glossaryCat:'all',
 
-  init() {
+  init: function() {
     this.load();
-    if(this.state.theme==='light') document.documentElement.setAttribute('data-theme','light');
-    document.getElementById('theme-btn').textContent = this.state.theme==='dark'?'🌙':'☀️';
-    if(this.state.onboarded && this.state.role) this.go('screen-home');
+    if (this.state.theme === 'light') document.documentElement.setAttribute('data-theme', 'light');
+    document.getElementById('theme-btn').textContent = this.state.theme === 'dark' ? '\uD83C\uDF19' : '\u2600\uFE0F';
+    if (this.state.onboarded && this.state.role) this.go('screen-home');
     this.buildSev();
     this.renderAll();
   },
 
-  save() { try{localStorage.setItem('besideyou',JSON.stringify(this.state))}catch(e){} },
-  load() { try{const s=localStorage.getItem('besideyou');if(s)this.state={...this.state,...JSON.parse(s)}}catch(e){} },
+  save: function() { try { localStorage.setItem('besideyou', JSON.stringify(this.state)); } catch(e) {} },
+  load: function() { try { var s = localStorage.getItem('besideyou'); if (s) this.state = Object.assign({}, this.state, JSON.parse(s)); } catch(e) {} },
 
-  go(id) {
-    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  go: function(id) {
+    var screens = document.querySelectorAll('.screen');
+    for (var i = 0; i < screens.length; i++) screens[i].classList.remove('active');
     document.getElementById(id).classList.add('active');
-    const nav=!['screen-welcome','screen-role'].includes(id);
-    document.getElementById('bottom-nav').style.display=nav?'flex':'none';
-    const fab=!['screen-welcome','screen-role','screen-crisis'].includes(id);
-    document.getElementById('crisis-fab').classList.toggle('visible',fab);
-    const nm={'screen-home':0,'screen-symptoms':1,'screen-checkin':1,'screen-medications':2,'screen-gooddays':3,'screen-resources':4,'screen-crisis':4};
-    document.querySelectorAll('.nav-item').forEach((n,i)=>n.classList.toggle('active',i===nm[id]));
-    if(id==='screen-home') this.updateGreeting();
-    window.scrollTo(0,0);
+    var showNav = (['screen-welcome', 'screen-role'].indexOf(id) === -1);
+    document.getElementById('bottom-nav').style.display = showNav ? 'flex' : 'none';
+    var showFab = (['screen-welcome', 'screen-role', 'screen-crisis'].indexOf(id) === -1);
+    document.getElementById('crisis-fab').classList.toggle('visible', showFab);
+    var nm = {'screen-home':0, 'screen-symptoms':1, 'screen-checkin':1, 'screen-medications':2, 'screen-gooddays':3, 'screen-resources':4, 'screen-crisis':4};
+    var navItems = document.querySelectorAll('.nav-item');
+    for (var j = 0; j < navItems.length; j++) navItems[j].classList.toggle('active', j === nm[id]);
+    if (id === 'screen-home') this.updateGreeting();
+    window.scrollTo(0, 0);
   },
-  nav(s,e){this.go(s)},
+  nav: function(s) { this.go(s); },
 
-  setRole(role) {
-    this.state.role=role; this.state.onboarded=true; this.save();
-    document.getElementById('qa-carer').style.display=role==='carer'?'block':'none';
-    document.getElementById('qa-patient').style.display=role==='carer'?'none':'block';
+  setRole: function(role) {
+    this.state.role = role; this.state.onboarded = true; this.save();
+    document.getElementById('qa-carer').style.display = role === 'carer' ? 'block' : 'none';
+    document.getElementById('qa-patient').style.display = role === 'carer' ? 'none' : 'block';
     this.go('screen-home');
   },
 
-  toggleTheme() {
-    this.state.theme=this.state.theme==='dark'?'light':'dark';
-    if(this.state.theme==='light') document.documentElement.setAttribute('data-theme','light');
+  toggleTheme: function() {
+    this.state.theme = this.state.theme === 'dark' ? 'light' : 'dark';
+    if (this.state.theme === 'light') document.documentElement.setAttribute('data-theme', 'light');
     else document.documentElement.removeAttribute('data-theme');
-    document.getElementById('theme-btn').textContent=this.state.theme==='dark'?'🌙':'☀️';
+    document.getElementById('theme-btn').textContent = this.state.theme === 'dark' ? '\uD83C\uDF19' : '\u2600\uFE0F';
     this.save();
   },
 
-  updateGreeting() {
-    const h=new Date().getHours();
-    document.getElementById('greeting').textContent=h<12?'Good morning.':h<17?'Good afternoon.':'Good evening.';
-    document.getElementById('qa-carer').style.display=this.state.role==='carer'?'block':'none';
-    document.getElementById('qa-patient').style.display=this.state.role==='carer'?'none':'block';
+  updateGreeting: function() {
+    var h = new Date().getHours();
+    document.getElementById('greeting').textContent = h < 12 ? 'Good morning.' : h < 17 ? 'Good afternoon.' : 'Good evening.';
+    document.getElementById('qa-carer').style.display = this.state.role === 'carer' ? 'block' : 'none';
+    document.getElementById('qa-patient').style.display = this.state.role === 'carer' ? 'none' : 'block';
   },
 
-  // Check-in
-  pickMood(btn) { document.querySelectorAll('#mood-grid .mood-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); },
-  saveCheckin() {
-    const mood=document.querySelector('#mood-grid .mood-btn.active')?.dataset.mood||'';
-    const syms=Array.from(document.querySelectorAll('#checkin-symptoms .pill.active')).map(p=>p.textContent);
-    const notes=document.getElementById('ci-notes').value;
-    const good=document.getElementById('ci-good').value;
-    this.state.checkins.unshift({id:Date.now(),date:new Date().toISOString(),mood,symptoms:syms,notes,good});
-    if(good.trim()) this.state.gooddays.unshift({id:Date.now()+1,date:new Date().toISOString(),text:good.trim()});
-    this.save(); this.toast('Check-in saved ✓');
-    document.querySelectorAll('#mood-grid .mood-btn').forEach(b=>b.classList.remove('active'));
-    document.querySelectorAll('#checkin-symptoms .pill').forEach(p=>p.classList.remove('active'));
-    document.getElementById('ci-notes').value=''; document.getElementById('ci-good').value='';
+  pickMood: function(btn) {
+    var btns = document.querySelectorAll('#mood-grid .mood-btn');
+    for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
+    btn.classList.add('active');
+  },
+  saveCheckin: function() {
+    var moodEl = document.querySelector('#mood-grid .mood-btn.active');
+    var mood = moodEl ? moodEl.getAttribute('data-mood') : '';
+    var syms = []; var pills = document.querySelectorAll('#checkin-symptoms .pill.active');
+    for (var i = 0; i < pills.length; i++) syms.push(pills[i].textContent);
+    var notes = document.getElementById('ci-notes').value;
+    var good = document.getElementById('ci-good').value;
+    this.state.checkins.unshift({id: Date.now(), date: new Date().toISOString(), mood: mood, symptoms: syms, notes: notes, good: good});
+    if (good.trim()) this.state.gooddays.unshift({id: Date.now() + 1, date: new Date().toISOString(), text: good.trim()});
+    this.save(); this.toast('Check-in saved \u2713');
+    var moodBtns = document.querySelectorAll('#mood-grid .mood-btn');
+    for (var j = 0; j < moodBtns.length; j++) moodBtns[j].classList.remove('active');
+    var ciPills = document.querySelectorAll('#checkin-symptoms .pill');
+    for (var k = 0; k < ciPills.length; k++) ciPills[k].classList.remove('active');
+    document.getElementById('ci-notes').value = ''; document.getElementById('ci-good').value = '';
     this.go('screen-home'); this.renderAll();
   },
 
-  // Symptoms
-  pickSymType(btn) {
-    document.querySelectorAll('#modal-symptom .pill').forEach(p=>p.classList.remove('active'));
-    btn.classList.add('active'); document.getElementById('sym-name').value=btn.textContent;
+  pickSymType: function(btn) {
+    var pills = document.querySelectorAll('#modal-symptom .pill');
+    for (var i = 0; i < pills.length; i++) pills[i].classList.remove('active');
+    btn.classList.add('active'); document.getElementById('sym-name').value = btn.textContent;
   },
-  buildSev() {
-    const el=document.getElementById('sev-scale'); if(!el)return; el.innerHTML='';
-    for(let i=1;i<=10;i++){const b=document.createElement('button');b.className='sev-btn';b.textContent=i;
-    b.onclick=()=>{document.querySelectorAll('.sev-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');this._currentSev=i;};el.appendChild(b);}
+  buildSev: function() {
+    var el = document.getElementById('sev-scale'); if (!el) return; el.innerHTML = '';
+    var self = this;
+    for (var i = 1; i <= 10; i++) {
+      (function(n) {
+        var b = document.createElement('button'); b.className = 'sev-btn'; b.textContent = n;
+        b.addEventListener('click', function() {
+          var all = document.querySelectorAll('.sev-btn');
+          for (var x = 0; x < all.length; x++) all[x].classList.remove('active');
+          b.classList.add('active'); self._currentSev = n;
+        });
+        el.appendChild(b);
+      })(i);
+    }
   },
-  saveSymptom() {
-    const name=document.getElementById('sym-name').value.trim();
-    if(!name){this.toast('Please enter a symptom');return;}
-    this.state.symptoms.unshift({id:Date.now(),date:new Date().toISOString(),name,severity:this._currentSev,notes:document.getElementById('sym-notes').value});
-    this.save(); this.closeModal('modal-symptom'); this.toast('Symptom logged ✓'); this.renderSymptoms();
+  saveSymptom: function() {
+    var name = document.getElementById('sym-name').value.trim();
+    if (!name) { this.toast('Please enter a symptom'); return; }
+    this.state.symptoms.unshift({id: Date.now(), date: new Date().toISOString(), name: name, severity: this._currentSev, notes: document.getElementById('sym-notes').value});
+    this.save(); this.closeModal('modal-symptom'); this.toast('Symptom logged \u2713'); this.renderSymptoms();
   },
-  renderSymptoms() {
-    const el=document.getElementById('symptom-list');
-    if(!this.state.symptoms.length){el.innerHTML='<div class="empty"><div class="ei">💓</div><h3>No symptoms logged yet</h3><p class="sub mt-8">When you\'re ready, tap above to log your first symptom.</p></div>';return;}
-    el.innerHTML=this.state.symptoms.map(s=>`<div class="li" style="margin-bottom:8px;cursor:default"><div class="li-icon" style="background:${s.severity<=3?'var(--sage)':s.severity<=6?'var(--warm)':'var(--rose)'};color:#fff;font-size:.8rem;font-weight:600;width:36px;height:36px">${s.severity}</div><div style="flex:1;min-width:0"><div class="li-t">${this.esc(s.name)}</div><div class="li-s">${this.fmtDate(s.date)}${s.notes?' · '+this.esc(s.notes):''}</div></div><button class="del-btn" onclick="App.del('symptoms',${s.id})">✕</button></div>`).join('');
-  },
-
-  // Medications
-  saveMed() {
-    const name=document.getElementById('med-name').value.trim();
-    if(!name){this.toast('Please enter a medication name');return;}
-    this.state.medications.unshift({id:Date.now(),name,dose:document.getElementById('med-dose').value,frequency:document.getElementById('med-freq').value,purpose:document.getElementById('med-purpose').value,questions:document.getElementById('med-q').value,date:new Date().toISOString()});
-    this.save(); this.closeModal('modal-med'); this.toast('Medication added ✓'); this.renderMeds();
-  },
-  renderMeds() {
-    const el=document.getElementById('med-list');
-    if(!this.state.medications.length){el.innerHTML='<div class="empty"><div class="ei">💊</div><h3>No medications added yet</h3><p class="sub mt-8">Add your medications so you have them all in one place.</p></div>';return;}
-    el.innerHTML=this.state.medications.map(m=>`<div class="li" style="margin-bottom:8px;cursor:default"><div class="li-icon warm">💊</div><div style="flex:1;min-width:0"><div class="li-t">${this.esc(m.name)}${m.dose?' — '+this.esc(m.dose):''}</div><div class="li-s">${m.frequency?this.esc(m.frequency):''}${m.purpose?' · '+this.esc(m.purpose):''}</div>${m.questions?'<div class="li-s" style="color:var(--sky);margin-top:4px">❓ '+this.esc(m.questions)+'</div>':''}</div><button class="del-btn" onclick="App.del('medications',${m.id})">✕</button></div>`).join('');
-  },
-
-  // Appointments
-  saveAppt() {
-    const type=document.getElementById('appt-type').value.trim();
-    if(!type){this.toast('Please enter the appointment type');return;}
-    this.state.appointments.unshift({id:Date.now(),type,date:document.getElementById('appt-date').value,time:document.getElementById('appt-time').value,location:document.getElementById('appt-loc').value,notes:document.getElementById('appt-notes').value});
-    this.save(); this.closeModal('modal-appt'); this.toast('Appointment added ✓'); this.renderAppts();
-  },
-  renderAppts() {
-    const el=document.getElementById('appt-list');
-    if(!this.state.appointments.length){el.innerHTML='<div class="empty" style="padding:24px"><div class="ei">📅</div><h3>No appointments yet</h3></div>';return;}
-    el.innerHTML=this.state.appointments.map(a=>`<div class="li" style="margin-bottom:8px;cursor:default"><div class="li-icon gold">📅</div><div style="flex:1;min-width:0"><div class="li-t">${this.esc(a.type)}</div><div class="li-s">${a.date?this.fmtDateShort(a.date):'No date'}${a.time?' at '+a.time:''}${a.location?' · '+this.esc(a.location):''}</div>${a.notes?'<div class="li-s" style="margin-top:4px">'+this.esc(a.notes)+'</div>':''}</div><button class="del-btn" onclick="App.del('appointments',${a.id})">✕</button></div>`).join('');
+  renderSymptoms: function() {
+    var el = document.getElementById('symptom-list'); var self = this;
+    if (!this.state.symptoms.length) { el.innerHTML = '<div class="empty"><div class="ei">\uD83D\uDC93</div><h3>No symptoms logged yet</h3><p class="sub mt-8">When you\'re ready, tap above to log your first symptom.</p></div>'; return; }
+    el.innerHTML = this.state.symptoms.map(function(s) {
+      return '<div class="li" style="margin-bottom:8px;cursor:default"><div class="li-icon" style="background:' + (s.severity <= 3 ? 'var(--sage)' : s.severity <= 6 ? 'var(--warm)' : 'var(--rose)') + ';color:#fff;font-size:.8rem;font-weight:600;width:36px;height:36px">' + s.severity + '</div><div style="flex:1;min-width:0"><div class="li-t">' + self.esc(s.name) + '</div><div class="li-s">' + self.fmtDate(s.date) + (s.notes ? ' \u00B7 ' + self.esc(s.notes) : '') + '</div></div><button class="del-btn" data-del="symptoms:' + s.id + '">\u2715</button></div>';
+    }).join('');
   },
 
-  // Doctor Questions
-  addDQ() {
-    const inp=document.getElementById('dq-input');const q=inp.value.trim();if(!q)return;
-    this.state.doctorQuestions.unshift({id:Date.now(),text:q,done:false});inp.value='';this.save();this.renderDQ();
+  saveMed: function() {
+    var name = document.getElementById('med-name').value.trim();
+    if (!name) { this.toast('Please enter a medication name'); return; }
+    this.state.medications.unshift({id: Date.now(), name: name, dose: document.getElementById('med-dose').value, frequency: document.getElementById('med-freq').value, purpose: document.getElementById('med-purpose').value, questions: document.getElementById('med-q').value, date: new Date().toISOString()});
+    this.save(); this.closeModal('modal-med'); this.toast('Medication added \u2713'); this.renderMeds();
   },
-  toggleDQ(id) { const q=this.state.doctorQuestions.find(x=>x.id===id);if(q)q.done=!q.done;this.save();this.renderDQ(); },
-  renderDQ() {
-    const el=document.getElementById('dq-list');if(!this.state.doctorQuestions.length){el.innerHTML='';return;}
-    el.innerHTML=this.state.doctorQuestions.map(q=>`<div class="dq"><button class="dq-check ${q.done?'done':''}" onclick="App.toggleDQ(${q.id})">${q.done?'✓':''}</button><div class="dq-text" style="${q.done?'text-decoration:line-through;color:var(--t3)':''}">${this.esc(q.text)}</div><button class="del-btn" onclick="App.del('doctorQuestions',${q.id})" style="width:24px;height:24px">✕</button></div>`).join('');
-  },
-
-  // Good Days Jar
-  addGoodDay() {
-    const inp=document.getElementById('gd-input');const t=inp.value.trim();if(!t)return;
-    this.state.gooddays.unshift({id:Date.now(),date:new Date().toISOString(),text:t});inp.value='';this.save();this.toast('Moment saved ✨');this.renderGoodDays();
-  },
-  renderGoodDays() {
-    const el=document.getElementById('gd-list');
-    if(!this.state.gooddays.length){el.innerHTML='<div class="empty"><div class="ei">✨</div><h3>Your jar is waiting</h3><p class="sub mt-8">Add your first moment above.</p></div>';return;}
-    el.innerHTML=this.state.gooddays.map(g=>`<div class="gd-moment"><div class="gd-icon">✨</div><div class="gd-body"><div class="gd-text">${this.esc(g.text)}</div><div class="gd-date">${this.fmtDate(g.date)}</div></div><button class="del-btn" onclick="App.del('gooddays',${g.id})">✕</button></div>`).join('');
+  renderMeds: function() {
+    var el = document.getElementById('med-list'); var self = this;
+    if (!this.state.medications.length) { el.innerHTML = '<div class="empty"><div class="ei">\uD83D\uDC8A</div><h3>No medications added yet</h3><p class="sub mt-8">Add your medications so you have them all in one place.</p></div>'; return; }
+    el.innerHTML = this.state.medications.map(function(m) {
+      return '<div class="li" style="margin-bottom:8px;cursor:default"><div class="li-icon warm">\uD83D\uDC8A</div><div style="flex:1;min-width:0"><div class="li-t">' + self.esc(m.name) + (m.dose ? ' \u2014 ' + self.esc(m.dose) : '') + '</div><div class="li-s">' + (m.frequency ? self.esc(m.frequency) : '') + (m.purpose ? ' \u00B7 ' + self.esc(m.purpose) : '') + '</div>' + (m.questions ? '<div class="li-s" style="color:var(--sky);margin-top:4px">\u2753 ' + self.esc(m.questions) + '</div>' : '') + '</div><button class="del-btn" data-del="medications:' + m.id + '">\u2715</button></div>';
+    }).join('');
   },
 
-  // Journal
-  saveJournal() {
-    const inp=document.getElementById('journal-input');const t=inp.value.trim();if(!t)return;
-    this.state.journal.unshift({id:Date.now(),date:new Date().toISOString(),text:t});inp.value='';this.save();this.toast('Entry saved ✓');this.renderJournal();
+  saveAppt: function() {
+    var type = document.getElementById('appt-type').value.trim();
+    if (!type) { this.toast('Please enter the appointment type'); return; }
+    this.state.appointments.unshift({id: Date.now(), type: type, date: document.getElementById('appt-date').value, time: document.getElementById('appt-time').value, location: document.getElementById('appt-loc').value, notes: document.getElementById('appt-notes').value});
+    this.save(); this.closeModal('modal-appt'); this.toast('Appointment added \u2713'); this.renderAppts();
   },
-  renderJournal() {
-    const el=document.getElementById('journal-list');
-    if(!this.state.journal.length){el.innerHTML='<div class="empty"><div class="ei">📝</div><h3>No entries yet</h3><p class="sub mt-8">Write whatever is on your mind.</p></div>';return;}
-    el.innerHTML=this.state.journal.map(j=>`<div class="j-entry"><div class="j-date">${this.fmtDate(j.date)}</div><div class="j-text">${this.esc(j.text)}</div><button class="del-btn mt-8" onclick="App.del('journal',${j.id})">✕</button></div>`).join('');
+  renderAppts: function() {
+    var el = document.getElementById('appt-list'); var self = this;
+    if (!this.state.appointments.length) { el.innerHTML = '<div class="empty" style="padding:24px"><div class="ei">\uD83D\uDCC5</div><h3>No appointments yet</h3></div>'; return; }
+    el.innerHTML = this.state.appointments.map(function(a) {
+      return '<div class="li" style="margin-bottom:8px;cursor:default"><div class="li-icon gold">\uD83D\uDCC5</div><div style="flex:1;min-width:0"><div class="li-t">' + self.esc(a.type) + '</div><div class="li-s">' + (a.date ? self.fmtDateShort(a.date) : 'No date') + (a.time ? ' at ' + a.time : '') + (a.location ? ' \u00B7 ' + self.esc(a.location) : '') + '</div>' + (a.notes ? '<div class="li-s" style="margin-top:4px">' + self.esc(a.notes) + '</div>' : '') + '</div><button class="del-btn" data-del="appointments:' + a.id + '">\u2715</button></div>';
+    }).join('');
   },
 
-  // Glossary
-  filterGlossary() {
-    const q=document.getElementById('glossary-search').value.toLowerCase();
-    this.renderGlossary(q);
+  addDQ: function() {
+    var inp = document.getElementById('dq-input'); var q = inp.value.trim(); if (!q) return;
+    this.state.doctorQuestions.unshift({id: Date.now(), text: q, done: false}); inp.value = ''; this.save(); this.renderDQ();
   },
-  filterGlossaryCat(btn,cat) {
-    document.querySelectorAll('#glossary-filters .pill').forEach(p=>p.classList.remove('active'));
-    btn.classList.add('active'); this._glossaryCat=cat; this.renderGlossary();
+  toggleDQ: function(id) {
+    var found = null;
+    for (var i = 0; i < this.state.doctorQuestions.length; i++) {
+      if (this.state.doctorQuestions[i].id === id) { found = this.state.doctorQuestions[i]; break; }
+    }
+    if (found) found.done = !found.done; this.save(); this.renderDQ();
   },
-  renderGlossary(search) {
-    const q=(search||document.getElementById('glossary-search')?.value||'').toLowerCase();
-    const cat=this._glossaryCat;
-    let terms=GLOSSARY.filter(t=>{
-      if(cat!=='all'&&t.cat!==cat)return false;
-      if(q&&!t.term.toLowerCase().includes(q)&&!t.def.toLowerCase().includes(q))return false;
+  renderDQ: function() {
+    var el = document.getElementById('dq-list'); var self = this;
+    if (!this.state.doctorQuestions.length) { el.innerHTML = ''; return; }
+    el.innerHTML = this.state.doctorQuestions.map(function(q) {
+      return '<div class="dq"><button class="dq-check ' + (q.done ? 'done' : '') + '" data-dq="' + q.id + '">' + (q.done ? '\u2713' : '') + '</button><div class="dq-text" style="' + (q.done ? 'text-decoration:line-through;color:var(--t3)' : '') + '">' + self.esc(q.text) + '</div><button class="del-btn" data-del="doctorQuestions:' + q.id + '" style="width:24px;height:24px">\u2715</button></div>';
+    }).join('');
+  },
+
+  addGoodDay: function() {
+    var inp = document.getElementById('gd-input'); var t = inp.value.trim(); if (!t) return;
+    this.state.gooddays.unshift({id: Date.now(), date: new Date().toISOString(), text: t}); inp.value = ''; this.save(); this.toast('Moment saved \u2728'); this.renderGoodDays();
+  },
+  renderGoodDays: function() {
+    var el = document.getElementById('gd-list'); var self = this;
+    if (!this.state.gooddays.length) { el.innerHTML = '<div class="empty"><div class="ei">\u2728</div><h3>Your jar is waiting</h3><p class="sub mt-8">Add your first moment above.</p></div>'; return; }
+    el.innerHTML = this.state.gooddays.map(function(g) {
+      return '<div class="gd-moment"><div class="gd-icon">\u2728</div><div class="gd-body"><div class="gd-text">' + self.esc(g.text) + '</div><div class="gd-date">' + self.fmtDate(g.date) + '</div></div><button class="del-btn" data-del="gooddays:' + g.id + '">\u2715</button></div>';
+    }).join('');
+  },
+
+  saveJournal: function() {
+    var inp = document.getElementById('journal-input'); var t = inp.value.trim(); if (!t) return;
+    this.state.journal.unshift({id: Date.now(), date: new Date().toISOString(), text: t}); inp.value = ''; this.save(); this.toast('Entry saved \u2713'); this.renderJournal();
+  },
+  renderJournal: function() {
+    var el = document.getElementById('journal-list'); var self = this;
+    if (!this.state.journal.length) { el.innerHTML = '<div class="empty"><div class="ei">\uD83D\uDCDD</div><h3>No entries yet</h3><p class="sub mt-8">Write whatever is on your mind.</p></div>'; return; }
+    el.innerHTML = this.state.journal.map(function(j) {
+      return '<div class="j-entry"><div class="j-date">' + self.fmtDate(j.date) + '</div><div class="j-text">' + self.esc(j.text) + '</div><button class="del-btn mt-8" data-del="journal:' + j.id + '">\u2715</button></div>';
+    }).join('');
+  },
+
+  filterGlossary: function() {
+    var searchEl = document.getElementById('glossary-search');
+    this.renderGlossary(searchEl ? searchEl.value.toLowerCase() : '');
+  },
+  filterGlossaryCat: function(btn, cat) {
+    var pills = document.querySelectorAll('#glossary-filters .pill');
+    for (var i = 0; i < pills.length; i++) pills[i].classList.remove('active');
+    btn.classList.add('active'); this._glossaryCat = cat; this.renderGlossary();
+  },
+  renderGlossary: function(search) {
+    var searchEl = document.getElementById('glossary-search');
+    var q = (search || (searchEl ? searchEl.value : '') || '').toLowerCase();
+    var cat = this._glossaryCat; var self = this;
+    var terms = GLOSSARY.filter(function(t) {
+      if (cat !== 'all' && t.cat !== cat) return false;
+      if (q && t.term.toLowerCase().indexOf(q) === -1 && t.def.toLowerCase().indexOf(q) === -1) return false;
       return true;
     });
-    const el=document.getElementById('glossary-list');
-    if(!terms.length){el.innerHTML='<div class="empty" style="padding:32px"><p class="sub">No terms found. Try a different search.</p></div>';return;}
-    el.innerHTML=terms.map(t=>`<div class="gl-term" onclick="this.classList.toggle('open')"><div class="gl-name">${this.esc(t.term)}</div><div class="gl-def">${this.esc(t.def)}</div><div class="gl-cat">${t.cat}</div></div>`).join('');
+    var el = document.getElementById('glossary-list');
+    if (!terms.length) { el.innerHTML = '<div class="empty" style="padding:32px"><p class="sub">No terms found. Try a different search.</p></div>'; return; }
+    el.innerHTML = terms.map(function(t) {
+      return '<div class="gl-term" data-toggle-open><div class="gl-name">' + self.esc(t.term) + '</div><div class="gl-def">' + self.esc(t.def) + '</div><div class="gl-cat">' + t.cat + '</div></div>';
+    }).join('');
   },
 
-  // Resources
-  filterRes(btn,cat) {
-    document.querySelectorAll('#screen-resources .pill').forEach(p=>p.classList.remove('active'));
+  filterRes: function(btn, cat) {
+    var pills = document.querySelectorAll('#screen-resources .pill');
+    for (var i = 0; i < pills.length; i++) pills[i].classList.remove('active');
     btn.classList.add('active'); this.renderResources(cat);
   },
-  renderResources(cat) {
-    cat=cat||'all';
-    const el=document.getElementById('resources-list');
-    let res=RESOURCES.filter(r=>cat==='all'||r.cat===cat);
-    el.innerHTML=res.map(r=>`<div class="rcard"><div class="rcard-t">${this.esc(r.name)}</div><div class="rcard-d">${this.esc(r.desc)}</div><div style="margin-top:8px;display:flex;gap:12px">${r.phone?`<a href="tel:${r.phone.replace(/\s/g,'')}" class="rcard-a">📞 ${r.phone}</a>`:''}${r.url?`<a href="${r.url}" target="_blank" rel="noopener" class="rcard-a">🔗 Website</a>`:''}</div><div style="margin-top:6px;display:flex;gap:4px">${r.who.split(',').map(w=>`<span style="font-size:.7rem;padding:2px 8px;border-radius:10px;background:var(--sage-s);color:var(--sage)">${w.trim()}</span>`).join('')}</div></div>`).join('');
+  renderResources: function(cat) {
+    cat = cat || 'all'; var self = this;
+    var el = document.getElementById('resources-list');
+    var res = RESOURCES.filter(function(r) { return cat === 'all' || r.cat === cat; });
+    el.innerHTML = res.map(function(r) {
+      return '<div class="rcard"><div class="rcard-t">' + self.esc(r.name) + '</div><div class="rcard-d">' + self.esc(r.desc) + '</div><div style="margin-top:8px;display:flex;gap:12px">' + (r.phone ? '<a href="tel:' + r.phone.replace(/\s/g, '') + '" class="rcard-a">\uD83D\uDCDE ' + r.phone + '</a>' : '') + (r.url ? '<a href="' + r.url + '" target="_blank" rel="noopener" class="rcard-a">\uD83D\uDD17 Website</a>' : '') + '</div><div style="margin-top:6px;display:flex;gap:4px">' + r.who.split(',').map(function(w) { return '<span style="font-size:.7rem;padding:2px 8px;border-radius:10px;background:var(--sage-s);color:var(--sage)">' + w.trim() + '</span>'; }).join('') + '</div></div>';
+    }).join('');
   },
 
-  // Handoff
-  saveHandoff() {
-    const meds=document.getElementById('ho-meds').value;
-    const mood=document.getElementById('ho-mood').value;
-    const notes=document.getElementById('ho-notes').value;
-    const upcoming=document.getElementById('ho-upcoming').value;
-    if(!meds&&!mood&&!notes&&!upcoming){this.toast('Add at least one detail');return;}
-    this.state.handoffs.unshift({id:Date.now(),date:new Date().toISOString(),meds,mood,notes,upcoming});
-    this.save();this.toast('Handoff saved ✓');
-    ['ho-meds','ho-mood','ho-notes','ho-upcoming'].forEach(id=>document.getElementById(id).value='');
+  saveHandoff: function() {
+    var meds = document.getElementById('ho-meds').value;
+    var mood = document.getElementById('ho-mood').value;
+    var notes = document.getElementById('ho-notes').value;
+    var upcoming = document.getElementById('ho-upcoming').value;
+    if (!meds && !mood && !notes && !upcoming) { this.toast('Add at least one detail'); return; }
+    this.state.handoffs.unshift({id: Date.now(), date: new Date().toISOString(), meds: meds, mood: mood, notes: notes, upcoming: upcoming});
+    this.save(); this.toast('Handoff saved \u2713');
+    var ids = ['ho-meds', 'ho-mood', 'ho-notes', 'ho-upcoming'];
+    for (var i = 0; i < ids.length; i++) document.getElementById(ids[i]).value = '';
     this.renderHandoffs();
   },
-  copyHandoff() {
-    const m=document.getElementById('ho-meds').value;const mo=document.getElementById('ho-mood').value;
-    const n=document.getElementById('ho-notes').value;const u=document.getElementById('ho-upcoming').value;
-    const text=`CARER HANDOFF — ${new Date().toLocaleString()}\n\nMedications: ${m||'—'}\nHow they're doing: ${mo||'—'}\nThings to know: ${n||'—'}\nComing up: ${u||'—'}`;
-    navigator.clipboard.writeText(text).then(()=>this.toast('Copied to clipboard ✓')).catch(()=>this.toast('Could not copy'));
+  copyHandoff: function() {
+    var m = document.getElementById('ho-meds').value; var mo = document.getElementById('ho-mood').value;
+    var n = document.getElementById('ho-notes').value; var u = document.getElementById('ho-upcoming').value;
+    var text = 'CARER HANDOFF \u2014 ' + new Date().toLocaleString() + '\n\nMedications: ' + (m || '\u2014') + '\nHow they\'re doing: ' + (mo || '\u2014') + '\nThings to know: ' + (n || '\u2014') + '\nComing up: ' + (u || '\u2014');
+    navigator.clipboard.writeText(text).then(function() { App.toast('Copied to clipboard \u2713'); }).catch(function() { App.toast('Could not copy'); });
   },
-  renderHandoffs() {
-    const el=document.getElementById('handoff-list');
-    if(!this.state.handoffs.length){el.innerHTML='';return;}
-    el.innerHTML=this.state.handoffs.slice(0,10).map(h=>`<div class="ho-card"><div class="ho-date">${this.fmtDate(h.date)}</div>${h.meds?'<div class="ho-section"><strong>Meds</strong><p>'+this.esc(h.meds)+'</p></div>':''}${h.mood?'<div class="ho-section"><strong>Status</strong><p>'+this.esc(h.mood)+'</p></div>':''}${h.notes?'<div class="ho-section"><strong>Notes</strong><p>'+this.esc(h.notes)+'</p></div>':''}${h.upcoming?'<div class="ho-section"><strong>Coming up</strong><p>'+this.esc(h.upcoming)+'</p></div>':''}<button class="del-btn mt-4" onclick="App.del('handoffs',${h.id})">✕</button></div>`).join('');
+  renderHandoffs: function() {
+    var el = document.getElementById('handoff-list'); var self = this;
+    if (!this.state.handoffs.length) { el.innerHTML = ''; return; }
+    el.innerHTML = this.state.handoffs.slice(0, 10).map(function(h) {
+      return '<div class="ho-card"><div class="ho-date">' + self.fmtDate(h.date) + '</div>' + (h.meds ? '<div class="ho-section"><strong>Meds</strong><p>' + self.esc(h.meds) + '</p></div>' : '') + (h.mood ? '<div class="ho-section"><strong>Status</strong><p>' + self.esc(h.mood) + '</p></div>' : '') + (h.notes ? '<div class="ho-section"><strong>Notes</strong><p>' + self.esc(h.notes) + '</p></div>' : '') + (h.upcoming ? '<div class="ho-section"><strong>Coming up</strong><p>' + self.esc(h.upcoming) + '</p></div>' : '') + '<button class="del-btn mt-4" data-del="handoffs:' + h.id + '">\u2715</button></div>';
+    }).join('');
   },
 
-  // Breathing
-  startBreathing() {
-    if(this._breathRunning){this.stopBreathing();return;}
-    this._breathRunning=true;
-    document.getElementById('breath-btn').textContent='Stop';
-    const circle=document.getElementById('breath-circle');const text=document.getElementById('breath-text');
-    let phase='inhale';
-    const cycle=()=>{
-      if(phase==='inhale'){circle.className='breath-circle inhale';text.textContent='Breathe in...';phase='hold1';}
-      else if(phase==='hold1'){text.textContent='Hold...';phase='exhale';}
-      else if(phase==='exhale'){circle.className='breath-circle exhale';text.textContent='Breathe out...';phase='hold2';}
-      else{text.textContent='Hold...';phase='inhale';}
+  startBreathing: function() {
+    if (this._breathRunning) { this.stopBreathing(); return; }
+    this._breathRunning = true;
+    document.getElementById('breath-btn').textContent = 'Stop';
+    var circle = document.getElementById('breath-circle'); var text = document.getElementById('breath-text');
+    var phase = 'inhale';
+    var cycle = function() {
+      if (phase === 'inhale') { circle.className = 'breath-circle inhale'; text.textContent = 'Breathe in...'; phase = 'hold1'; }
+      else if (phase === 'hold1') { text.textContent = 'Hold...'; phase = 'exhale'; }
+      else if (phase === 'exhale') { circle.className = 'breath-circle exhale'; text.textContent = 'Breathe out...'; phase = 'hold2'; }
+      else { text.textContent = 'Hold...'; phase = 'inhale'; }
     };
     cycle();
-    this._breathInterval=setInterval(cycle,4000);
+    this._breathInterval = setInterval(cycle, 4000);
   },
-  stopBreathing() {
-    this._breathRunning=false;clearInterval(this._breathInterval);
-    document.getElementById('breath-btn').textContent='Start breathing';
-    document.getElementById('breath-circle').className='breath-circle';
-    document.getElementById('breath-text').textContent='Tap to begin';
+  stopBreathing: function() {
+    this._breathRunning = false; clearInterval(this._breathInterval);
+    document.getElementById('breath-btn').textContent = 'Start breathing';
+    document.getElementById('breath-circle').className = 'breath-circle';
+    document.getElementById('breath-text').textContent = 'Tap to begin';
   },
 
-  // Export / Import with encryption
-  exportData() { this.openModal('modal-export'); },
-  async doExport() {
-    const p1=document.getElementById('exp-pass').value;const p2=document.getElementById('exp-pass2').value;
-    if(!p1){this.toast('Please enter a passphrase');return;}
-    if(p1!==p2){this.toast('Passphrases don\'t match');return;}
+  exportData: function() { this.openModal('modal-export'); },
+  doExport: function() {
+    var self = this;
+    var p1 = document.getElementById('exp-pass').value; var p2 = document.getElementById('exp-pass2').value;
+    if (!p1) { this.toast('Please enter a passphrase'); return; }
+    if (p1 !== p2) { this.toast('Passphrases don\'t match'); return; }
     try {
-      const data=JSON.stringify(this.state);
-      const enc=new TextEncoder();const keyMaterial=await crypto.subtle.importKey('raw',enc.encode(p1),'PBKDF2',false,['deriveKey']);
-      const salt=crypto.getRandomValues(new Uint8Array(16));const iv=crypto.getRandomValues(new Uint8Array(12));
-      const key=await crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:100000,hash:'SHA-256'},keyMaterial,{name:'AES-GCM',length:256},false,['encrypt']);
-      const encrypted=await crypto.subtle.encrypt({name:'AES-GCM',iv},key,enc.encode(data));
-      const result=new Uint8Array(salt.length+iv.length+encrypted.byteLength);
-      result.set(salt,0);result.set(iv,salt.length);result.set(new Uint8Array(encrypted),salt.length+iv.length);
-      const blob=new Blob([result],{type:'application/octet-stream'});
-      const url=URL.createObjectURL(blob);const a=document.createElement('a');
-      a.href=url;a.download='besideyou-backup-'+new Date().toISOString().slice(0,10)+'.besideyou';
-      a.click();URL.revokeObjectURL(url);
-      this.closeModal('modal-export');this.toast('Backup downloaded ✓');
-      document.getElementById('exp-pass').value='';document.getElementById('exp-pass2').value='';
-    } catch(e) { this.toast('Export failed: '+e.message); }
+      var data = JSON.stringify(this.state);
+      var enc = new TextEncoder();
+      crypto.subtle.importKey('raw', enc.encode(p1), 'PBKDF2', false, ['deriveKey']).then(function(keyMaterial) {
+        var salt = crypto.getRandomValues(new Uint8Array(16)); var iv = crypto.getRandomValues(new Uint8Array(12));
+        return crypto.subtle.deriveKey({name: 'PBKDF2', salt: salt, iterations: 100000, hash: 'SHA-256'}, keyMaterial, {name: 'AES-GCM', length: 256}, false, ['encrypt']).then(function(key) {
+          return crypto.subtle.encrypt({name: 'AES-GCM', iv: iv}, key, enc.encode(data)).then(function(encrypted) {
+            var result = new Uint8Array(salt.length + iv.length + encrypted.byteLength);
+            result.set(salt, 0); result.set(iv, salt.length); result.set(new Uint8Array(encrypted), salt.length + iv.length);
+            var blob = new Blob([result], {type: 'application/octet-stream'});
+            var url = URL.createObjectURL(blob); var a = document.createElement('a');
+            a.href = url; a.download = 'besideyou-backup-' + new Date().toISOString().slice(0, 10) + '.besideyou';
+            a.click(); URL.revokeObjectURL(url);
+            self.closeModal('modal-export'); self.toast('Backup downloaded \u2713');
+            document.getElementById('exp-pass').value = ''; document.getElementById('exp-pass2').value = '';
+          });
+        });
+      }).catch(function(e) { self.toast('Export failed: ' + e.message); });
+    } catch(e) { this.toast('Export failed: ' + e.message); }
   },
-  importData(event) {
-    const file=event.target.files[0];if(!file)return;
-    const reader=new FileReader();
-    reader.onload=()=>{this._importFile=reader.result;this.openModal('modal-import');};
+  importData: function(event) {
+    var self = this;
+    var file = event.target.files[0]; if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function() { self._importFile = reader.result; self.openModal('modal-import'); };
     reader.readAsArrayBuffer(file);
-    event.target.value='';
+    event.target.value = '';
   },
-  async doImport() {
-    const pass=document.getElementById('imp-pass').value;
-    if(!pass){this.toast('Please enter your passphrase');return;}
+  doImport: function() {
+    var self = this;
+    var pass = document.getElementById('imp-pass').value;
+    if (!pass) { this.toast('Please enter your passphrase'); return; }
     try {
-      const data=new Uint8Array(this._importFile);
-      const salt=data.slice(0,16);const iv=data.slice(16,28);const encrypted=data.slice(28);
-      const enc=new TextEncoder();const keyMaterial=await crypto.subtle.importKey('raw',enc.encode(pass),'PBKDF2',false,['deriveKey']);
-      const key=await crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:100000,hash:'SHA-256'},keyMaterial,{name:'AES-GCM',length:256},false,['decrypt']);
-      const decrypted=await crypto.subtle.decrypt({name:'AES-GCM',iv},key,encrypted);
-      const json=new TextDecoder().decode(decrypted);
-      this.state={...this.state,...JSON.parse(json)};this.save();
-      this.closeModal('modal-import');this.toast('Data restored ✓');
-      document.getElementById('imp-pass').value='';this.renderAll();
+      var data = new Uint8Array(this._importFile);
+      var salt = data.slice(0, 16); var iv = data.slice(16, 28); var encrypted = data.slice(28);
+      var enc = new TextEncoder();
+      crypto.subtle.importKey('raw', enc.encode(pass), 'PBKDF2', false, ['deriveKey']).then(function(keyMaterial) {
+        return crypto.subtle.deriveKey({name: 'PBKDF2', salt: salt, iterations: 100000, hash: 'SHA-256'}, keyMaterial, {name: 'AES-GCM', length: 256}, false, ['decrypt']).then(function(key) {
+          return crypto.subtle.decrypt({name: 'AES-GCM', iv: iv}, key, encrypted).then(function(decrypted) {
+            var json = new TextDecoder().decode(decrypted);
+            self.state = Object.assign({}, self.state, JSON.parse(json)); self.save();
+            self.closeModal('modal-import'); self.toast('Data restored \u2713');
+            document.getElementById('imp-pass').value = ''; self.renderAll();
+          });
+        });
+      }).catch(function() { self.toast('Wrong passphrase or corrupted file'); });
     } catch(e) { this.toast('Wrong passphrase or corrupted file'); }
   },
 
-  // Modals
-  openModal(id) {
-    if(id==='modal-symptom'){document.getElementById('sym-name').value='';document.getElementById('sym-notes').value='';document.querySelectorAll('#modal-symptom .pill').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.sev-btn').forEach(b=>b.classList.remove('active'));this._currentSev=5;}
-    if(id==='modal-med'){['med-name','med-dose','med-freq','med-purpose','med-q'].forEach(x=>document.getElementById(x).value='');}
-    if(id==='modal-appt'){['appt-type','appt-date','appt-time','appt-loc','appt-notes'].forEach(x=>document.getElementById(x).value='');}
+  openModal: function(id) {
+    if (id === 'modal-symptom') {
+      document.getElementById('sym-name').value = ''; document.getElementById('sym-notes').value = '';
+      var pills = document.querySelectorAll('#modal-symptom .pill');
+      for (var i = 0; i < pills.length; i++) pills[i].classList.remove('active');
+      var sevs = document.querySelectorAll('.sev-btn');
+      for (var j = 0; j < sevs.length; j++) sevs[j].classList.remove('active');
+      this._currentSev = 5;
+    }
+    if (id === 'modal-med') { var mids = ['med-name', 'med-dose', 'med-freq', 'med-purpose', 'med-q']; for (var k = 0; k < mids.length; k++) document.getElementById(mids[k]).value = ''; }
+    if (id === 'modal-appt') { var aids = ['appt-type', 'appt-date', 'appt-time', 'appt-loc', 'appt-notes']; for (var l = 0; l < aids.length; l++) document.getElementById(aids[l]).value = ''; }
     document.getElementById(id).classList.add('active');
   },
-  closeModal(id) { document.getElementById(id).classList.remove('active'); },
+  closeModal: function(id) { document.getElementById(id).classList.remove('active'); },
 
-  // Delete
-  del(collection, id) {
-    this.state[collection]=this.state[collection].filter(x=>x.id!==id);this.save();this.renderAll();
+  del: function(collection, id) {
+    this.state[collection] = this.state[collection].filter(function(x) { return x.id !== id; }); this.save(); this.renderAll();
   },
 
-  // Render all
-  renderAll() {
-    this.renderSymptoms();this.renderMeds();this.renderAppts();this.renderDQ();
-    this.renderGoodDays();this.renderJournal();this.renderGlossary();this.renderResources();this.renderHandoffs();
+  renderAll: function() {
+    this.renderSymptoms(); this.renderMeds(); this.renderAppts(); this.renderDQ();
+    this.renderGoodDays(); this.renderJournal(); this.renderGlossary(); this.renderResources(); this.renderHandoffs();
   },
 
-  // Toast
-  toast(msg) {
-    const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
-    setTimeout(()=>t.classList.remove('show'),2500);
+  toast: function(msg) {
+    var t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show');
+    setTimeout(function() { t.classList.remove('show'); }, 2500);
   },
 
-  // Helpers
-  esc(s) { if(!s)return'';const d=document.createElement('div');d.textContent=s;return d.innerHTML; },
-  fmtDate(iso) {
-    try{const d=new Date(iso);return d.toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});}catch(e){return iso;}
+  esc: function(s) { if (!s) return ''; var d = document.createElement('div'); d.textContent = s; return d.innerHTML; },
+  fmtDate: function(iso) {
+    try { var d = new Date(iso); return d.toLocaleDateString('en-AU', {day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'}); } catch(e) { return iso; }
   },
-  fmtDateShort(ds) {
-    try{const d=new Date(ds+'T00:00:00');return d.toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short'});}catch(e){return ds;}
+  fmtDateShort: function(ds) {
+    try { var d = new Date(ds + 'T00:00:00'); return d.toLocaleDateString('en-AU', {weekday: 'short', day: 'numeric', month: 'short'}); } catch(e) { return ds; }
   }
 };
 
-window.App = App;
-document.addEventListener('DOMContentLoaded',()=>App.init());
+// ===== EVENT DELEGATION =====
+// All user interactions are handled via data-* attributes + addEventListener.
+// This works even when Content-Security-Policy blocks 'unsafe-inline'.
+
+document.addEventListener('click', function(e) {
+  var el;
+
+  // Navigate: data-go="screen-name"
+  el = e.target.closest('[data-go]');
+  if (el) { App.go(el.getAttribute('data-go')); return; }
+
+  // Role: data-role="patient|carer|supporter"
+  el = e.target.closest('[data-role]');
+  if (el) { App.setRole(el.getAttribute('data-role')); return; }
+
+  // Bottom nav: data-nav="screen-name"
+  el = e.target.closest('[data-nav]');
+  if (el) { App.nav(el.getAttribute('data-nav')); return; }
+
+  // Mood: data-mood (already on buttons)
+  el = e.target.closest('[data-mood]');
+  if (el) { App.pickMood(el); return; }
+
+  // Toggle active: data-toggle
+  el = e.target.closest('[data-toggle]');
+  if (el) { el.classList.toggle('active'); return; }
+
+  // Toggle open: data-toggle-open
+  el = e.target.closest('[data-toggle-open]');
+  if (el) { el.classList.toggle('open'); return; }
+
+  // Open modal: data-modal="id"
+  el = e.target.closest('[data-modal]');
+  if (el) { App.openModal(el.getAttribute('data-modal')); return; }
+
+  // Close modal: data-close="id"
+  el = e.target.closest('[data-close]');
+  if (el) { App.closeModal(el.getAttribute('data-close')); return; }
+
+  // App method: data-action="methodName"
+  el = e.target.closest('[data-action]');
+  if (el) {
+    var action = el.getAttribute('data-action');
+    if (typeof App[action] === 'function') App[action]();
+    return;
+  }
+
+  // Symptom type: data-sym
+  el = e.target.closest('[data-sym]');
+  if (el) { App.pickSymType(el); return; }
+
+  // Glossary category: data-gcat="cat"
+  el = e.target.closest('[data-gcat]');
+  if (el) { App.filterGlossaryCat(el, el.getAttribute('data-gcat')); return; }
+
+  // Resource category: data-rcat="cat"
+  el = e.target.closest('[data-rcat]');
+  if (el) { App.filterRes(el, el.getAttribute('data-rcat')); return; }
+
+  // Trigger file input: data-trigger="element-id"
+  el = e.target.closest('[data-trigger]');
+  if (el) { document.getElementById(el.getAttribute('data-trigger')).click(); return; }
+
+  // Delete: data-del="collection:id"
+  el = e.target.closest('[data-del]');
+  if (el) {
+    var parts = el.getAttribute('data-del').split(':');
+    App.del(parts[0], parseInt(parts[1], 10));
+    return;
+  }
+
+  // Toggle doctor question: data-dq="id"
+  el = e.target.closest('[data-dq]');
+  if (el) { App.toggleDQ(parseInt(el.getAttribute('data-dq'), 10)); return; }
+});
+
+// Non-click events
+document.getElementById('import-file').addEventListener('change', function(e) { App.importData(e); });
+document.getElementById('glossary-search').addEventListener('input', function() { App.filterGlossary(); });
+
+// Init
+App.init();
