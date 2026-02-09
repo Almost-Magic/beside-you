@@ -113,7 +113,7 @@ textarea{resize:vertical;min-height:80px}
 /* Section, header, body */
 .section-label{font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--t3);margin-bottom:12px}
 .screen-header{display:flex;align-items:center;gap:12px;padding:20px 24px 16px;position:sticky;top:0;background:var(--bg1);z-index:10;border-bottom:1px solid var(--bdr-l)}
-.screen-body{padding:20px 24px 100px;flex:1}
+.screen-body{padding:20px 24px 100px;flex:1;overflow-y:auto;min-height:0}
 
 /* Back button, icon button */
 .back-btn,.icon-btn{width:36px;height:36px;border:none;background:var(--bg2);border-radius:50%;color:var(--t2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;transition:all var(--tr)}
@@ -182,7 +182,7 @@ textarea{resize:vertical;min-height:80px}
 .link-muted{color:var(--t3);text-decoration:none}
 
 /* Welcome */
-.welcome-wrap{flex:1;display:flex;flex-direction:column;padding:40px 28px;overflow-y:auto}
+.welcome-wrap{flex:1;display:flex;flex-direction:column;padding:40px 28px;overflow-y:auto;min-height:0}
 .welcome-icon{font-size:3rem;margin-bottom:16px}
 .welcome-title{font-family:var(--serif);font-size:2rem;font-weight:400;margin-bottom:8px}
 .welcome-sub{font-size:1rem;color:var(--t2)}

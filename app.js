@@ -1,4 +1,4 @@
-const App = {
+const App = window.App = {
   state: { role:null, theme:'dark', onboarded:false, checkins:[], symptoms:[], medications:[], appointments:[], gooddays:[], journal:[], doctorQuestions:[], handoffs:[] },
   _importFile:null, _breathInterval:null, _breathRunning:false, _currentSev:5, _glossaryCat:'all',
 
