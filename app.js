@@ -365,79 +365,82 @@ var App = {
 };
 
 // ===== EVENT DELEGATION =====
-// All user interactions are handled via data-* attributes + addEventListener.
-// This works even when Content-Security-Policy blocks 'unsafe-inline'.
+// Manual DOM traversal — does NOT use Element.closest() for max compatibility.
+
+// Walk up from el to find an ancestor (or self) with the given attribute
+function _up(el, attr) {
+  while (el && el.nodeType === 1) {
+    if (el.hasAttribute && el.hasAttribute(attr)) return el;
+    el = el.parentElement;
+  }
+  return null;
+}
 
 document.addEventListener('click', function(e) {
-  var el;
+  try {
+    var t = e.target;
+    var el;
 
-  // Navigate: data-go="screen-name"
-  el = e.target.closest('[data-go]');
-  if (el) { App.go(el.getAttribute('data-go')); return; }
+    el = _up(t, 'data-go');
+    if (el) { App.go(el.getAttribute('data-go')); return; }
 
-  // Role: data-role="patient|carer|supporter"
-  el = e.target.closest('[data-role]');
-  if (el) { App.setRole(el.getAttribute('data-role')); return; }
+    el = _up(t, 'data-role');
+    if (el) { App.setRole(el.getAttribute('data-role')); return; }
 
-  // Bottom nav: data-nav="screen-name"
-  el = e.target.closest('[data-nav]');
-  if (el) { App.nav(el.getAttribute('data-nav')); return; }
+    el = _up(t, 'data-nav');
+    if (el) { App.nav(el.getAttribute('data-nav')); return; }
 
-  // Mood: data-mood (already on buttons)
-  el = e.target.closest('[data-mood]');
-  if (el) { App.pickMood(el); return; }
+    el = _up(t, 'data-mood');
+    if (el) { App.pickMood(el); return; }
 
-  // Toggle active: data-toggle
-  el = e.target.closest('[data-toggle]');
-  if (el) { el.classList.toggle('active'); return; }
+    el = _up(t, 'data-toggle');
+    if (el) { el.classList.toggle('active'); return; }
 
-  // Toggle open: data-toggle-open
-  el = e.target.closest('[data-toggle-open]');
-  if (el) { el.classList.toggle('open'); return; }
+    el = _up(t, 'data-toggle-open');
+    if (el) { el.classList.toggle('open'); return; }
 
-  // Open modal: data-modal="id"
-  el = e.target.closest('[data-modal]');
-  if (el) { App.openModal(el.getAttribute('data-modal')); return; }
+    el = _up(t, 'data-modal');
+    if (el) { App.openModal(el.getAttribute('data-modal')); return; }
 
-  // Close modal: data-close="id"
-  el = e.target.closest('[data-close]');
-  if (el) { App.closeModal(el.getAttribute('data-close')); return; }
+    el = _up(t, 'data-close');
+    if (el) { App.closeModal(el.getAttribute('data-close')); return; }
 
-  // App method: data-action="methodName"
-  el = e.target.closest('[data-action]');
-  if (el) {
-    var action = el.getAttribute('data-action');
-    if (typeof App[action] === 'function') App[action]();
-    return;
+    el = _up(t, 'data-action');
+    if (el) {
+      var action = el.getAttribute('data-action');
+      if (typeof App[action] === 'function') App[action]();
+      return;
+    }
+
+    el = _up(t, 'data-sym');
+    if (el) { App.pickSymType(el); return; }
+
+    el = _up(t, 'data-gcat');
+    if (el) { App.filterGlossaryCat(el, el.getAttribute('data-gcat')); return; }
+
+    el = _up(t, 'data-rcat');
+    if (el) { App.filterRes(el, el.getAttribute('data-rcat')); return; }
+
+    el = _up(t, 'data-trigger');
+    if (el) { document.getElementById(el.getAttribute('data-trigger')).click(); return; }
+
+    el = _up(t, 'data-del');
+    if (el) {
+      var parts = el.getAttribute('data-del').split(':');
+      App.del(parts[0], parseInt(parts[1], 10));
+      return;
+    }
+
+    el = _up(t, 'data-dq');
+    if (el) { App.toggleDQ(parseInt(el.getAttribute('data-dq'), 10)); return; }
+  } catch(err) {
+    // Show error visually so user can report it
+    var d = document.createElement('div');
+    d.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#d94444;color:#fff;padding:12px;z-index:99999;font-size:13px;text-align:center';
+    d.textContent = 'Error: ' + err.message;
+    document.body.appendChild(d);
+    setTimeout(function() { if (d.parentNode) d.parentNode.removeChild(d); }, 5000);
   }
-
-  // Symptom type: data-sym
-  el = e.target.closest('[data-sym]');
-  if (el) { App.pickSymType(el); return; }
-
-  // Glossary category: data-gcat="cat"
-  el = e.target.closest('[data-gcat]');
-  if (el) { App.filterGlossaryCat(el, el.getAttribute('data-gcat')); return; }
-
-  // Resource category: data-rcat="cat"
-  el = e.target.closest('[data-rcat]');
-  if (el) { App.filterRes(el, el.getAttribute('data-rcat')); return; }
-
-  // Trigger file input: data-trigger="element-id"
-  el = e.target.closest('[data-trigger]');
-  if (el) { document.getElementById(el.getAttribute('data-trigger')).click(); return; }
-
-  // Delete: data-del="collection:id"
-  el = e.target.closest('[data-del]');
-  if (el) {
-    var parts = el.getAttribute('data-del').split(':');
-    App.del(parts[0], parseInt(parts[1], 10));
-    return;
-  }
-
-  // Toggle doctor question: data-dq="id"
-  el = e.target.closest('[data-dq]');
-  if (el) { App.toggleDQ(parseInt(el.getAttribute('data-dq'), 10)); return; }
 });
 
 // Non-click events
