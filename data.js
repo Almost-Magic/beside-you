@@ -75,3 +75,22 @@ const CRISIS = {
     {name:"Beyond Blue",number:"1300 22 4636",tel:"1300224636",desc:"24/7 support for anxiety, depression, and emotional wellbeing."}
   ]
 };
+
+// Words for the dark — 3am module
+const DARK_PHRASES = [
+  "This moment will pass. It always does.",
+  "You don\u2019t have to be brave right now.",
+  "It\u2019s okay to be scared. Fear is not weakness.",
+  "You are not alone, even if it feels that way.",
+  "Tomorrow doesn\u2019t need you to solve it tonight.",
+  "You have survived every bad day so far.",
+  "Rest is not giving up.",
+  "You are allowed to feel exactly what you feel.",
+  "The night always ends. Morning always comes.",
+  "You don\u2019t have to understand everything right now.",
+  "Being tired is not the same as giving up.",
+  "Somewhere, someone is thinking of you right now.",
+  "You are more than this moment.",
+  "It\u2019s okay to cry. It\u2019s okay to be still. It\u2019s okay to just be.",
+  "You don\u2019t have to carry it all tonight."
+];

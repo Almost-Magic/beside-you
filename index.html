@@ -10,7 +10,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <title>BesideYou</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>">
-<link rel="stylesheet" href="style.css?v=9">
+<link rel="stylesheet" href="style.css?v=13">
 </head>
 <body>
 <noscript><div style="position:fixed;top:0;left:0;right:0;background:#d94444;color:#fff;padding:20px;z-index:99999;text-align:center;font-size:18px;font-family:sans-serif">JavaScript is disabled in your browser. BesideYou needs JavaScript to work. Please enable it in your browser settings.</div></noscript>
@@ -81,11 +81,11 @@
   </div>
 
   <div class="text-center mt-24">
-    <a href="https://github.com/almost-magic/beside-you" target="_blank" rel="noopener" class="welcome-oss">Open source · Verify it yourself →</a>
+    <a href="https://github.com/almost-magic/beside-you" target="_blank" rel="noopener noreferrer" class="welcome-oss">Open source · Verify it yourself →</a>
   </div>
 
   <div class="text-center mt-16 pb-20">
-    <p style="font-size:.72rem;color:var(--t3)">A gift from <a href="https://almostmagic.au" target="_blank" rel="noopener" class="link-muted">Almost Magic Tech Lab</a> · Sydney<br>MIT Licence</p>
+    <p style="font-size:.72rem;color:var(--t3)">A gift from <a href="https://almostmagic.au" target="_blank" rel="noopener noreferrer" class="link-muted">Almost Magic Tech Lab</a> · Sydney<br>MIT Licence</p>
   </div>
 </div>
 </div>
@@ -94,24 +94,24 @@
 <div class="screen" id="screen-role">
 <div class="welcome-wrap">
   <div class="text-center mb-20">
-    <h1 class="h1">Who will be using BesideYou?</h1>
-    <p class="sub mt-8">This helps us show you the right things first.</p>
+    <h1 class="h1">Who is BesideYou for today?</h1>
+    <p class="sub mt-8">This helps us show you the right things first. You can change this any time.</p>
   </div>
   <div class="stack">
     <div class="card card-role" data-role="patient">
       <div class="card-emoji">💛</div>
-      <h3>I am a patient</h3>
+      <h3>I have cancer</h3>
       <p class="sub sm">I'm navigating my own cancer journey.</p>
     </div>
     <div class="card card-role" data-role="carer">
       <div class="card-emoji">🤝</div>
-      <h3>I am a carer</h3>
-      <p class="sub sm">I'm caring for someone with cancer.</p>
+      <h3>I'm caring for someone with cancer</h3>
+      <p class="sub sm">I'm a carer, partner, or family member providing daily support.</p>
     </div>
     <div class="card card-role" data-role="supporter">
       <div class="card-emoji">🌸</div>
-      <h3>I'm supporting someone</h3>
-      <p class="sub sm">A friend or family member has cancer.</p>
+      <h3>I'm a family member or friend</h3>
+      <p class="sub sm">Someone I care about has cancer.</p>
     </div>
   </div>
   <button class="btn btn-ghost mt-20" data-go="screen-welcome">← Back</button>
@@ -126,6 +126,29 @@
     <button class="icon-btn" data-action="toggleTheme" id="theme-btn" title="Toggle theme">🌙</button>
   </div>
   <p class="hint italic mb-20">You don't need to use everything here. Most people start with just one thing.</p>
+
+  <!-- Backup nudge -->
+  <div class="backup-nudge" id="backup-nudge" style="display:none">
+    <span>You have <strong id="nudge-count">0</strong> entries that only exist in this browser.</span>
+    <button class="nudge-link" data-action="exportPlainJSON">Save a backup →</button>
+  </div>
+
+  <!-- Fresh visit prompt -->
+  <div class="fresh-visit" id="fresh-visit" style="display:none">
+    <div class="fresh-visit-inner">
+      <h3>Starting fresh?</h3>
+      <p class="sub mt-8">If you have a backup from before, you can pick up where you left off.</p>
+      <button class="btn btn-secondary mt-12" data-action="triggerImportFile" style="max-width:260px">📂 Load a Backup</button>
+    </div>
+  </div>
+
+  <!-- Privacy notice -->
+  <div class="privacy-notice">
+    <h3 class="pn-title">🔒 Your data stays yours</h3>
+    <p class="sub sm mt-6">BesideYou keeps everything on your device. Nothing is stored online, no account needed, no one else can see your data.</p>
+    <p class="sub sm mt-6">Your browser is the only place your data lives — save a backup regularly to keep it safe.</p>
+    <button class="btn btn-secondary btn-sm mt-12" data-action="exportPlainJSON" style="width:auto">💾 Save a Backup Now</button>
+  </div>
 
   <!-- Check-in card -->
   <div class="card card-checkin" data-go="screen-checkin">
@@ -167,6 +190,9 @@
     <div class="card card-feat" data-go="screen-peace"><div class="fe">🧘</div><div class="ft">Peace</div><div class="fs">Breathe &amp; ground</div></div>
     <div class="card card-feat" data-go="screen-journal"><div class="fe">📝</div><div class="ft">Journal</div><div class="fs">Private thoughts</div></div>
     <div class="card card-feat" data-go="screen-resources"><div class="fe">ℹ️</div><div class="ft">Resources</div><div class="fs">Support services</div></div>
+    <div class="card card-feat" data-go="screen-3am"><div class="fe">🌙</div><div class="ft">3am</div><div class="fs">When sleep won't come</div></div>
+    <div class="card card-feat" data-go="screen-handoff"><div class="fe">🔄</div><div class="ft">Handoff</div><div class="fs">Carer shift notes</div></div>
+    <div class="card card-feat" data-go="screen-yourdata"><div class="fe">💾</div><div class="ft">Your Data</div><div class="fs">Export &amp; backup</div></div>
   </div>
 
   <!-- Crisis -->
@@ -175,24 +201,27 @@
   <!-- Data management -->
   <div class="mt-32 border-top pt-24">
     <div class="row-gap8">
-      <button class="btn btn-secondary btn-sm flex1" data-action="exportData">💾 Save my data</button>
-      <button class="btn btn-secondary btn-sm flex1" data-trigger="import-file">📂 Restore data</button>
+      <button class="btn btn-secondary btn-sm flex1" data-action="exportPlainJSON">💾 Save my data</button>
+      <button class="btn btn-secondary btn-sm flex1" data-go="screen-yourdata">📂 Manage data</button>
       <input type="file" id="import-file" accept=".besideyou" style="display:none">
     </div>
     <p class="hint text-center mt-8 lh15">Your data lives in this browser. Save a backup to keep it safe.<br>Use restore to continue on a different device.</p>
+    <div class="text-center mt-12">
+      <button class="btn btn-ghost btn-sm" data-go="screen-role" style="font-size:.78rem;color:var(--t3);padding:6px 12px">Change my role</button>
+    </div>
   </div>
 
   <!-- Exploring -->
   <div class="mt-32 border-top pt-24">
     <div class="section-label" style="margin-top:0">Exploring</div>
     <p class="sub lh17">Printable visit summaries for your doctor. Gentle weekly reflections. Carer-specific checklists for surgery, chemo, and recovery days.</p>
-    <p class="hint mt-8">BesideYou is open source. <a href="https://github.com/almost-magic/beside-you" target="_blank" rel="noopener" class="link-sage">Contribute or create a version for your community →</a></p>
+    <p class="hint mt-8">BesideYou is open source. <a href="https://github.com/almost-magic/beside-you" target="_blank" rel="noopener noreferrer" class="link-sage">Contribute or create a version for your community →</a></p>
   </div>
 
   <!-- Footer -->
   <div class="mt-32 text-center pb-20">
     <p class="hint lh16">BesideYou does not give medical advice.<br>Always contact your care team or emergency services if you are worried about your health.</p>
-    <p class="hint mt-12" style="font-size:.72rem">A gift from <a href="https://almostmagic.au" target="_blank" rel="noopener" class="link-muted">Almost Magic Tech Lab</a> · Sydney<br>Open source · MIT Licence</p>
+    <p class="hint mt-12" style="font-size:.72rem">A gift from <a href="https://almostmagic.au" target="_blank" rel="noopener noreferrer" class="link-muted">Almost Magic Tech Lab</a> · Sydney<br>Open source · MIT Licence</p>
   </div>
 </div>
 </div>
@@ -234,8 +263,17 @@
 
 <!-- ===== SYMPTOMS ===== -->
 <div class="screen" id="screen-symptoms">
-<div class="screen-header"><button class="back-btn" data-go="screen-home">←</button><h2>Symptom Tracker</h2></div>
+<div class="screen-header"><button class="back-btn" data-go="screen-home">←</button><h2>Symptom Tracker</h2><button class="wp-help-btn" data-wp-show="symptoms" title="What is this?">?</button></div>
 <div class="screen-body">
+  <div class="welcome-panel" id="wp-symptoms">
+    <p class="wp-label">What this does</p>
+    <p>A simple way to record how you're feeling today — physically and emotionally.</p>
+    <p class="wp-label">When you'd use it</p>
+    <p>Before an appointment, so you don't have to remember everything on the spot. Or when something changes and you want to keep a record.</p>
+    <p class="wp-label">You don't need to</p>
+    <p>Track every day. Once a week is enough. Even once a month. There's no streak, no score, no pressure.</p>
+    <button class="wp-dismiss" data-wp-dismiss="symptoms">Got it, hide this</button>
+  </div>
   <p class="sub mb-20">Tracking symptoms helps you have clearer conversations with your care team. You don't have to track everything — even noting one symptom can help.</p>
   <button class="btn btn-primary mb-16" data-modal="modal-symptom">+ Log a symptom</button>
   <div id="symptom-list"></div>
@@ -244,8 +282,17 @@
 
 <!-- ===== MEDICATIONS ===== -->
 <div class="screen" id="screen-medications">
-<div class="screen-header"><button class="back-btn" data-go="screen-home">←</button><h2>Medications</h2></div>
+<div class="screen-header"><button class="back-btn" data-go="screen-home">←</button><h2>Medications</h2><button class="wp-help-btn" data-wp-show="medications" title="What is this?">?</button></div>
 <div class="screen-body">
+  <div class="welcome-panel" id="wp-medications">
+    <p class="wp-label">What this does</p>
+    <p>Tracks what you're taking, when, and how it makes you feel.</p>
+    <p class="wp-label">When you'd use it</p>
+    <p>When you start a new medication, or when you want to show your care team what you've been on.</p>
+    <p class="wp-label">You don't need to</p>
+    <p>Be precise about times. "Morning" and "evening" is enough.</p>
+    <button class="wp-dismiss" data-wp-dismiss="medications">Got it, hide this</button>
+  </div>
   <p class="sub mb-20">Keep track of what you're taking, when, and any effects you notice. This helps your care team see the full picture.</p>
   <button class="btn btn-primary mb-16" data-modal="modal-med">+ Add a medication</button>
   <div id="med-list"></div>
@@ -254,8 +301,17 @@
 
 <!-- ===== APPOINTMENTS ===== -->
 <div class="screen" id="screen-appointments">
-<div class="screen-header"><button class="back-btn" data-go="screen-home">←</button><h2>Appointments</h2></div>
+<div class="screen-header"><button class="back-btn" data-go="screen-home">←</button><h2>Appointments</h2><button class="wp-help-btn" data-wp-show="appointments" title="What is this?">?</button></div>
 <div class="screen-body">
+  <div class="welcome-panel" id="wp-appointments">
+    <p class="wp-label">What this does</p>
+    <p>Keeps your medical appointments in one calm place — dates, locations, who you're seeing, and what to ask.</p>
+    <p class="wp-label">When you'd use it</p>
+    <p>When you get a new appointment and don't want it lost in a text message or scribbled on an envelope.</p>
+    <p class="wp-label">You don't need to</p>
+    <p>Enter everything. Even just the next one helps.</p>
+    <button class="wp-dismiss" data-wp-dismiss="appointments">Got it, hide this</button>
+  </div>
   <p class="sub mb-20">Keep your appointments, questions, and notes together. Patients forget 40–80% of what doctors say — writing it down helps.</p>
   <button class="btn btn-primary mb-16" data-modal="modal-appt">+ Add an appointment</button>
   <h3 class="mb-8">Questions for the doctor</h3>
@@ -272,8 +328,17 @@
 
 <!-- ===== GOOD DAYS JAR ===== -->
 <div class="screen" id="screen-gooddays">
-<div class="screen-header"><button class="back-btn" data-go="screen-home">←</button><h2>Good Days Jar</h2></div>
+<div class="screen-header"><button class="back-btn" data-go="screen-home">←</button><h2>Good Days Jar</h2><button class="wp-help-btn" data-wp-show="gooddays" title="What is this?">?</button></div>
 <div class="screen-body">
+  <div class="welcome-panel" id="wp-gooddays">
+    <p class="wp-label">What this does</p>
+    <p>A place to save small moments of light — things that made you smile, even briefly.</p>
+    <p class="wp-label">When you'd use it</p>
+    <p>When something good happens, however small. A kind word. A cup of tea. Sunshine through a window.</p>
+    <p class="wp-label">You don't need to</p>
+    <p>Find something every day. Some days are just hard, and that's okay.</p>
+    <button class="wp-dismiss" data-wp-dismiss="gooddays">Got it, hide this</button>
+  </div>
   <div class="text-center mb-24">
     <div style="font-size:3.5rem;margin-bottom:12px">✨</div>
     <p class="serif-body">Even on the hardest days, there can be small moments of light.</p>
@@ -290,8 +355,17 @@
 
 <!-- ===== PEACE ===== -->
 <div class="screen" id="screen-peace">
-<div class="screen-header"><button class="back-btn" data-go="screen-home">←</button><h2>Moments of Peace</h2></div>
+<div class="screen-header"><button class="back-btn" data-go="screen-home">←</button><h2>Moments of Peace</h2><button class="wp-help-btn" data-wp-show="peace" title="What is this?">?</button></div>
 <div class="screen-body">
+  <div class="welcome-panel" id="wp-peace">
+    <p class="wp-label">What this does</p>
+    <p>Simple breathing and grounding exercises to help calm your mind when things feel overwhelming.</p>
+    <p class="wp-label">When you'd use it</p>
+    <p>When anxiety creeps in, when you can't sleep, or when you just need a moment to pause.</p>
+    <p class="wp-label">You don't need to</p>
+    <p>Do it "right". Just breathe. There's no wrong way to take a moment for yourself.</p>
+    <button class="wp-dismiss" data-wp-dismiss="peace">Got it, hide this</button>
+  </div>
   <div class="text-center mb-32">
     <p class="serif-body" style="font-size:1.15rem">Take a moment. You deserve it.</p>
     <p class="hint italic mt-8">"This moment will pass."</p>
@@ -319,8 +393,17 @@
 
 <!-- ===== JOURNAL ===== -->
 <div class="screen" id="screen-journal">
-<div class="screen-header"><button class="back-btn" data-go="screen-home">←</button><h2>Journal</h2></div>
+<div class="screen-header"><button class="back-btn" data-go="screen-home">←</button><h2>Journal</h2><button class="wp-help-btn" data-wp-show="journal" title="What is this?">?</button></div>
 <div class="screen-body">
+  <div class="welcome-panel" id="wp-journal">
+    <p class="wp-label">What this does</p>
+    <p>A private space to write whatever you need to. Nobody sees this but you.</p>
+    <p class="wp-label">When you'd use it</p>
+    <p>When something's too big to hold in your head. When you need to put it down somewhere.</p>
+    <p class="wp-label">You don't need to</p>
+    <p>Write well. Write anything. Even one word counts.</p>
+    <button class="wp-dismiss" data-wp-dismiss="journal">Got it, hide this</button>
+  </div>
   <p class="sub mb-20">A private space for your thoughts. No one sees this but you.</p>
   <textarea id="journal-input" placeholder="Whatever is on your mind..." rows="6" class="mb-12"></textarea>
   <button class="btn btn-primary" data-action="saveJournal">Save entry</button>
@@ -331,8 +414,17 @@
 
 <!-- ===== GLOSSARY ===== -->
 <div class="screen" id="screen-glossary">
-<div class="screen-header"><button class="back-btn" data-go="screen-home">←</button><h2>Medical Glossary</h2></div>
+<div class="screen-header"><button class="back-btn" data-go="screen-home">←</button><h2>Medical Glossary</h2><button class="wp-help-btn" data-wp-show="glossary" title="What is this?">?</button></div>
 <div class="screen-body">
+  <div class="welcome-panel" id="wp-glossary">
+    <p class="wp-label">What this does</p>
+    <p>Medical terms explained in plain language — no jargon, no assumptions.</p>
+    <p class="wp-label">When you'd use it</p>
+    <p>When your doctor says something you don't understand, or when you want to look something up without scaring yourself on Google.</p>
+    <p class="wp-label">You don't need to</p>
+    <p>Learn all of these. Just look up what you need, when you need it.</p>
+    <button class="wp-dismiss" data-wp-dismiss="glossary">Got it, hide this</button>
+  </div>
   <p class="sub mb-16">Medical terms explained in plain language. Tap any term to learn more.</p>
   <input type="search" id="glossary-search" placeholder="Search for a term..." class="mb-12">
   <div class="pill-wrap mb-16" id="glossary-filters">
@@ -350,8 +442,17 @@
 
 <!-- ===== RESOURCES ===== -->
 <div class="screen" id="screen-resources">
-<div class="screen-header"><button class="back-btn" data-go="screen-home">←</button><h2>Resources</h2></div>
+<div class="screen-header"><button class="back-btn" data-go="screen-home">←</button><h2>Resources</h2><button class="wp-help-btn" data-wp-show="resources" title="What is this?">?</button></div>
 <div class="screen-body">
+  <div class="welcome-panel" id="wp-resources">
+    <p class="wp-label">What this does</p>
+    <p>Connects you to support services — financial help, transport, counselling, practical support.</p>
+    <p class="wp-label">When you'd use it</p>
+    <p>When you don't know where to start, or when you need something specific but don't have the energy to search.</p>
+    <p class="wp-label">You don't need to</p>
+    <p>Know what you're looking for. Just browse what's here.</p>
+    <button class="wp-dismiss" data-wp-dismiss="resources">Got it, hide this</button>
+  </div>
   <p class="sub mb-12">Australian support services for patients and carers. All free.</p>
   <div class="crisis-box mb-20">
     <h3 class="crisis-title mb-8">Crisis Support — 24/7</h3>
@@ -394,6 +495,7 @@
     <h3 class="mb-8">🌬️ Need to calm down first?</h3>
     <p class="sub mb-16">Sometimes we need a moment to breathe before we can reach out.</p>
     <button class="btn btn-secondary" data-go="screen-peace" style="width:auto;padding:12px 28px">💚 Breathing Exercise</button>
+    <button class="btn btn-ghost mt-8" data-go="screen-3am" style="width:auto;font-size:.85rem;color:var(--t3)">🌙 For when it's 3am</button>
   </div>
   <div class="closing-card text-center">
     <p class="serif-body" style="font-size:1.1rem">You are still here. That matters.</p>
@@ -405,8 +507,17 @@
 
 <!-- ===== HANDOFF ===== -->
 <div class="screen" id="screen-handoff">
-<div class="screen-header"><button class="back-btn" data-go="screen-home">←</button><h2>Carer Handoff</h2></div>
+<div class="screen-header"><button class="back-btn" data-go="screen-home">←</button><h2>Carer Handoff</h2><button class="wp-help-btn" data-wp-show="handoff" title="What is this?">?</button></div>
 <div class="screen-body">
+  <div class="welcome-panel" id="wp-handoff">
+    <p class="wp-label">What this does</p>
+    <p>A way to summarise what happened on your shift, so the next carer knows what to expect.</p>
+    <p class="wp-label">When you'd use it</p>
+    <p>When someone else is taking over care — even for a few hours. Especially when you're too tired to explain everything out loud.</p>
+    <p class="wp-label">You don't need to</p>
+    <p>Write a detailed report. Even a few words about medications and mood helps.</p>
+    <button class="wp-dismiss" data-wp-dismiss="handoff">Got it, hide this</button>
+  </div>
   <p class="sub mb-8">When you hand over to the next carer, this helps them know what happened on your shift.</p>
   <p class="hint italic mb-24">The hardest part of caregiving isn't the medical care — it's the handoff between tired humans.</p>
   <div class="stack">
@@ -419,6 +530,98 @@
   <button class="btn btn-secondary mt-8" data-action="copyHandoff">📋 Copy to clipboard</button>
   <div class="section-label mt-24">Previous handoffs</div>
   <div id="handoff-list"></div>
+</div>
+</div>
+
+<!-- ===== 3AM ===== -->
+<div class="screen screen-3am" id="screen-3am">
+<div class="screen-header" style="background:#050508;border-bottom-color:rgba(123,158,188,.1)"><button class="back-btn" data-go="screen-home" style="background:rgba(123,158,188,.1);color:rgba(232,224,214,.5)">&#8592;</button><h2 style="color:rgba(232,224,214,.6)">For when it's 3am</h2></div>
+<div class="screen-body" style="background:#050508;padding-top:32px">
+
+  <!-- Breathing -->
+  <div class="night-section text-center">
+    <p class="night-text mb-16">Breathe with me.</p>
+    <div class="night-breath" id="night-breath"><span id="night-breath-text" style="font-size:.9rem">Tap to begin</span></div>
+    <button class="night-btn mt-16" data-action="startNightBreathing" id="night-breath-btn">Start breathing</button>
+  </div>
+
+  <!-- Grounding -->
+  <div class="night-section text-center">
+    <p class="night-text mb-20">Ground yourself, gently.</p>
+    <div id="night-ground">
+      <div class="night-ground-step visible" id="ngs-0"><div class="ngs-icon">&#128064;</div><div class="ngs-text">Look around you. Name 5 things you can see.</div></div>
+      <div class="night-ground-step" id="ngs-1"><div class="ngs-icon">&#9995;</div><div class="ngs-text">Notice 4 things you can touch right now.</div></div>
+      <div class="night-ground-step" id="ngs-2"><div class="ngs-icon">&#128066;</div><div class="ngs-text">Listen. What are 3 things you can hear?</div></div>
+      <div class="night-ground-step" id="ngs-3"><div class="ngs-icon">&#127800;</div><div class="ngs-text">2 things you can smell.</div></div>
+      <div class="night-ground-step" id="ngs-4"><div class="ngs-icon">&#128069;</div><div class="ngs-text">1 thing you can taste.</div></div>
+    </div>
+    <button class="night-btn mt-16" data-action="nextGround" id="ground-btn">Next</button>
+  </div>
+
+  <!-- Words for the dark -->
+  <div class="night-section text-center">
+    <p class="night-text mb-24">Words for the dark.</p>
+    <div class="night-phrase visible" id="night-phrase">This moment will pass. It always does.</div>
+    <button class="night-btn mt-20" data-action="nextPhrase">Show me another</button>
+  </div>
+
+  <!-- Crisis - always visible -->
+  <div class="night-crisis">
+    <p class="nc-label">Someone to talk to</p>
+    <div class="nc-line"><span class="nc-name">Lifeline</span><a href="tel:131114">13 11 14</a></div>
+    <div class="nc-line"><span class="nc-name">Cancer Council</span><a href="tel:131120">13 11 20</a></div>
+    <div class="nc-line"><span class="nc-name">Beyond Blue</span><a href="tel:1300224636">1300 22 4636</a></div>
+    <div class="nc-line"><span class="nc-name">Kids Helpline</span><a href="tel:1800551800">1800 55 1800</a></div>
+    <p class="nc-note">These are real people, available right now. You don't need a reason to call.</p>
+  </div>
+
+  <p class="text-center mt-32 pb-20" style="color:rgba(232,224,214,.25);font-size:.78rem">It's okay to close this and come back later.</p>
+</div>
+</div>
+
+<!-- ===== YOUR DATA ===== -->
+<div class="screen" id="screen-yourdata">
+<div class="screen-header"><button class="back-btn" data-go="screen-home">←</button><h2>Your Data</h2></div>
+<div class="screen-body">
+  <div class="data-privacy-intro">
+    <p>Everything you track in BesideYou stays on this device, in this browser. Nothing is stored online, no account needed, no one else can see your data. That's by design — your privacy matters more than our convenience.</p>
+    <p style="margin-top:12px">But it also means your browser is the only place your data lives. Save a backup regularly to keep your records safe.</p>
+  </div>
+
+  <div class="data-section">
+    <h3>💾 Download My Data</h3>
+    <p class="sub sm">Save a copy of everything you've tracked — your entries, notes, and settings — as a file on your device.</p>
+    <button class="btn btn-primary mt-12" data-action="exportPlainJSON" style="max-width:320px">Download My Data</button>
+  </div>
+
+  <div class="data-section">
+    <h3>📂 Load a Backup</h3>
+    <p class="sub sm">Restore from a previous backup file.</p>
+    <button class="btn btn-secondary mt-12" data-action="triggerImportFile" style="max-width:320px">Choose backup file</button>
+    <input type="file" id="import-json-file" accept=".json" style="display:none">
+    <div id="import-confirm-panel" class="import-confirm" style="display:none">
+      <p id="import-confirm-summary" class="sub" style="margin-bottom:16px"></p>
+      <div class="stack" style="max-width:320px">
+        <button class="btn btn-primary" data-action="importReplace">Replace — Remove current data and use this file</button>
+        <button class="btn btn-secondary" data-action="importMerge">Merge — Add new entries, keep existing data</button>
+        <button class="btn btn-ghost" data-action="importCancel">Cancel — Don't change anything</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="data-section data-section-danger">
+    <h3 style="color:var(--red)">⚠️ Clear All Data</h3>
+    <p class="sub sm">Remove everything from this browser. This cannot be undone.</p>
+    <button class="btn btn-danger mt-12" data-action="clearAllData" style="max-width:320px">Clear All Data</button>
+    <div id="clear-confirm" class="clear-confirm" style="display:none">
+      <p class="sub" style="color:var(--red);margin-bottom:8px">Are you sure? This will permanently remove all your BesideYou data from this browser.</p>
+      <p class="hint" style="margin-bottom:16px">If you want to keep a copy first, download your data above.</p>
+      <div class="row-gap8" style="max-width:320px">
+        <button class="btn btn-danger flex1" data-action="clearConfirm">Yes, delete everything</button>
+        <button class="btn btn-ghost flex1" data-action="clearCancel">Cancel</button>
+      </div>
+    </div>
+  </div>
 </div>
 </div>
 
@@ -492,7 +695,7 @@
 <div class="toast" id="toast"></div>
 </div>
 
-<script src="data.js?v=9"></script>
-<script src="app.js?v=9"></script>
+<script src="data.js?v=13"></script>
+<script src="app.js?v=13"></script>
 </body>
 </html>

@@ -3,16 +3,22 @@
 // Works even when CSP blocks 'unsafe-inline'.
 
 var App = {
-  state: { role:null, theme:'dark', onboarded:false, checkins:[], symptoms:[], medications:[], appointments:[], gooddays:[], journal:[], doctorQuestions:[], handoffs:[] },
+  state: { role:null, theme:'dark', onboarded:false, dismissedWelcome:[], checkins:[], symptoms:[], medications:[], appointments:[], gooddays:[], journal:[], doctorQuestions:[], handoffs:[] },
   _importFile:null, _breathInterval:null, _breathRunning:false, _currentSev:5, _glossaryCat:'all',
+  _nightBreathInterval:null, _nightBreathing:false, _groundStep:0, _phraseIndex:0,
+  _pendingImport:null, _clearStep:0,
 
   init: function() {
     this.load();
+    if (!this.state.dismissedWelcome) this.state.dismissedWelcome = [];
     if (this.state.theme === 'light') document.documentElement.setAttribute('data-theme', 'light');
     document.getElementById('theme-btn').textContent = this.state.theme === 'dark' ? '\uD83C\uDF19' : '\u2600\uFE0F';
     if (this.state.onboarded && this.state.role) this.go('screen-home');
     this.buildSev();
+    this.initWelcomePanels();
     this.renderAll();
+    this.updateNudge();
+    this.updateFreshVisit();
   },
 
   save: function() { try { localStorage.setItem('besideyou', JSON.stringify(this.state)); } catch(e) {} },
@@ -24,8 +30,9 @@ var App = {
     document.getElementById(id).classList.add('active');
     var showNav = (['screen-welcome', 'screen-role'].indexOf(id) === -1);
     document.getElementById('bottom-nav').style.display = showNav ? 'flex' : 'none';
-    var showFab = (['screen-welcome', 'screen-role', 'screen-crisis'].indexOf(id) === -1);
+    var showFab = (['screen-welcome', 'screen-role', 'screen-crisis', 'screen-3am'].indexOf(id) === -1);
     document.getElementById('crisis-fab').classList.toggle('visible', showFab);
+    if (id !== 'screen-3am' && this._nightBreathing) this.stopNightBreathing();
     var nm = {'screen-home':0, 'screen-symptoms':1, 'screen-checkin':1, 'screen-medications':2, 'screen-gooddays':3, 'screen-resources':4, 'screen-crisis':4};
     var navItems = document.querySelectorAll('.nav-item');
     for (var j = 0; j < navItems.length; j++) navItems[j].classList.toggle('active', j === nm[id]);
@@ -219,7 +226,7 @@ var App = {
     var el = document.getElementById('resources-list');
     var res = RESOURCES.filter(function(r) { return cat === 'all' || r.cat === cat; });
     el.innerHTML = res.map(function(r) {
-      return '<div class="rcard"><div class="rcard-t">' + self.esc(r.name) + '</div><div class="rcard-d">' + self.esc(r.desc) + '</div><div style="margin-top:8px;display:flex;gap:12px">' + (r.phone ? '<a href="tel:' + r.phone.replace(/\s/g, '') + '" class="rcard-a">\uD83D\uDCDE ' + r.phone + '</a>' : '') + (r.url ? '<a href="' + r.url + '" target="_blank" rel="noopener" class="rcard-a">\uD83D\uDD17 Website</a>' : '') + '</div><div style="margin-top:6px;display:flex;gap:4px">' + r.who.split(',').map(function(w) { return '<span style="font-size:.7rem;padding:2px 8px;border-radius:10px;background:var(--sage-s);color:var(--sage)">' + w.trim() + '</span>'; }).join('') + '</div></div>';
+      return '<div class="rcard"><div class="rcard-t">' + self.esc(r.name) + '</div><div class="rcard-d">' + self.esc(r.desc) + '</div><div style="margin-top:8px;display:flex;gap:12px">' + (r.phone ? '<a href="tel:' + r.phone.replace(/\s/g, '') + '" class="rcard-a">\uD83D\uDCDE ' + r.phone + '</a>' : '') + (r.url ? '<a href="' + r.url + '" target="_blank" rel="noopener noreferrer" class="rcard-a">\uD83D\uDD17 Website</a>' : '') + '</div><div style="margin-top:6px;display:flex;gap:4px">' + r.who.split(',').map(function(w) { return '<span style="font-size:.7rem;padding:2px 8px;border-radius:10px;background:var(--sage-s);color:var(--sage)">' + w.trim() + '</span>'; }).join('') + '</div></div>';
     }).join('');
   },
 
@@ -345,6 +352,306 @@ var App = {
     this.state[collection] = this.state[collection].filter(function(x) { return x.id !== id; }); this.save(); this.renderAll();
   },
 
+  // Welcome Panels
+  initWelcomePanels: function() {
+    if (!this.state.dismissedWelcome) return;
+    for (var i = 0; i < this.state.dismissedWelcome.length; i++) {
+      var panel = document.getElementById('wp-' + this.state.dismissedWelcome[i]);
+      if (panel) panel.classList.add('hidden');
+    }
+  },
+  dismissWelcome: function(moduleId) {
+    var panel = document.getElementById('wp-' + moduleId);
+    if (panel) panel.classList.add('hidden');
+    if (!this.state.dismissedWelcome) this.state.dismissedWelcome = [];
+    if (this.state.dismissedWelcome.indexOf(moduleId) === -1) {
+      this.state.dismissedWelcome.push(moduleId);
+      this.save();
+    }
+  },
+  showWelcome: function(moduleId) {
+    var panel = document.getElementById('wp-' + moduleId);
+    if (panel) panel.classList.remove('hidden');
+    if (!this.state.dismissedWelcome) return;
+    var idx = this.state.dismissedWelcome.indexOf(moduleId);
+    if (idx > -1) {
+      this.state.dismissedWelcome.splice(idx, 1);
+      this.save();
+    }
+  },
+
+  // 3am Module
+  startNightBreathing: function() {
+    if (this._nightBreathing) { this.stopNightBreathing(); return; }
+    this._nightBreathing = true;
+    var btn = document.getElementById('night-breath-btn');
+    if (btn) btn.textContent = 'Stop';
+    var circle = document.getElementById('night-breath');
+    var text = document.getElementById('night-breath-text');
+    var phase = 'inhale';
+    var run = function() {
+      if (phase === 'inhale') { circle.className = 'night-breath inhale'; text.textContent = 'Breathe in\u2026'; phase = 'hold1'; }
+      else if (phase === 'hold1') { text.textContent = 'Hold\u2026'; phase = 'exhale'; }
+      else if (phase === 'exhale') { circle.className = 'night-breath exhale'; text.textContent = 'Breathe out\u2026'; phase = 'hold2'; }
+      else { text.textContent = 'Hold\u2026'; phase = 'inhale'; }
+    };
+    run();
+    this._nightBreathInterval = setInterval(run, 4000);
+  },
+  stopNightBreathing: function() {
+    this._nightBreathing = false;
+    clearInterval(this._nightBreathInterval);
+    var btn = document.getElementById('night-breath-btn');
+    if (btn) btn.textContent = 'Start breathing';
+    var circle = document.getElementById('night-breath');
+    if (circle) circle.className = 'night-breath';
+    var text = document.getElementById('night-breath-text');
+    if (text) text.textContent = 'Tap to begin';
+  },
+  nextGround: function() {
+    this._groundStep++;
+    if (this._groundStep > 4) this._groundStep = 0;
+    for (var i = 0; i <= 4; i++) {
+      var step = document.getElementById('ngs-' + i);
+      if (step) {
+        if (i === this._groundStep) step.classList.add('visible');
+        else step.classList.remove('visible');
+      }
+    }
+    var btn = document.getElementById('ground-btn');
+    if (btn) btn.textContent = this._groundStep === 4 ? 'Start again' : 'Next';
+  },
+  nextPhrase: function() {
+    if (typeof DARK_PHRASES === 'undefined') return;
+    this._phraseIndex = (this._phraseIndex + 1) % DARK_PHRASES.length;
+    var el = document.getElementById('night-phrase');
+    if (!el) return;
+    el.classList.remove('visible');
+    var idx = this._phraseIndex;
+    setTimeout(function() {
+      el.textContent = DARK_PHRASES[idx];
+      el.classList.add('visible');
+    }, 800);
+  },
+
+  // === DATA PORTABILITY ===
+  countEntries: function() {
+    var s = this.state;
+    return (s.checkins||[]).length + (s.symptoms||[]).length + (s.medications||[]).length +
+      (s.appointments||[]).length + (s.gooddays||[]).length + (s.journal||[]).length +
+      (s.doctorQuestions||[]).length + (s.handoffs||[]).length;
+  },
+  getDateRange: function() {
+    var dates = [];
+    var collections = ['checkins','symptoms','medications','appointments','gooddays','journal','handoffs'];
+    for (var c = 0; c < collections.length; c++) {
+      var arr = this.state[collections[c]] || [];
+      for (var i = 0; i < arr.length; i++) {
+        if (arr[i].date) dates.push(arr[i].date);
+      }
+    }
+    if (!dates.length) return null;
+    dates.sort();
+    return { earliest: dates[0].slice(0,10), latest: dates[dates.length-1].slice(0,10) };
+  },
+  getCategories: function() {
+    var cats = [];
+    var s = this.state;
+    if ((s.checkins||[]).length) cats.push('mood');
+    if ((s.symptoms||[]).length) cats.push('symptoms');
+    if ((s.medications||[]).length) cats.push('medication');
+    if ((s.appointments||[]).length) cats.push('appointments');
+    if ((s.gooddays||[]).length) cats.push('gooddays');
+    if ((s.journal||[]).length) cats.push('journal');
+    if ((s.doctorQuestions||[]).length) cats.push('questions');
+    if ((s.handoffs||[]).length) cats.push('handoffs');
+    return cats;
+  },
+  exportPlainJSON: function() {
+    var total = this.countEntries();
+    var range = this.getDateRange();
+    var envelope = {
+      app: 'BesideYou',
+      version: '1.0',
+      exportDate: new Date().toISOString(),
+      exportVersion: 1,
+      summary: {
+        totalEntries: total,
+        dateRange: range || { earliest: null, latest: null },
+        categories: this.getCategories()
+      },
+      data: JSON.parse(JSON.stringify(this.state))
+    };
+    var json = JSON.stringify(envelope, null, 2);
+    var blob = new Blob([json], {type: 'application/json'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'besideyou-backup-' + new Date().toISOString().slice(0,10) + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+    // Track export for nudge
+    try {
+      localStorage.setItem('besideyou_lastExport', new Date().toISOString());
+      localStorage.setItem('besideyou_entriesAtLastExport', String(total));
+    } catch(e) {}
+    this.toast('Backup saved \u2713');
+    this.updateNudge();
+  },
+  triggerImportFile: function() {
+    document.getElementById('import-json-file').click();
+  },
+  handleImportFile: function(event) {
+    var self = this;
+    var file = event.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function() {
+      try {
+        var parsed = JSON.parse(reader.result);
+        if (parsed.app !== 'BesideYou' || !parsed.exportVersion) {
+          self.toast("This doesn\u2019t look like a BesideYou backup file.");
+          return;
+        }
+        self._pendingImport = parsed;
+        // Show confirmation panel
+        var total = parsed.summary ? parsed.summary.totalEntries : '?';
+        var range = parsed.summary && parsed.summary.dateRange ? parsed.summary.dateRange : {};
+        var earliest = range.earliest || 'unknown';
+        var latest = range.latest || 'unknown';
+        document.getElementById('import-confirm-summary').textContent =
+          'This file contains ' + total + ' entries from ' + earliest + ' to ' + latest + '.';
+        document.getElementById('import-confirm-panel').style.display = 'block';
+      } catch(e) {
+        self.toast("This doesn\u2019t look like a BesideYou backup file.");
+      }
+    };
+    reader.readAsText(file);
+    event.target.value = '';
+  },
+  importReplace: function() {
+    if (!this._pendingImport || !this._pendingImport.data) return;
+    var imported = this._pendingImport.data;
+    // Clear and replace
+    this.state = Object.assign({}, {
+      role:null, theme:'dark', onboarded:false, dismissedWelcome:[],
+      checkins:[], symptoms:[], medications:[], appointments:[],
+      gooddays:[], journal:[], doctorQuestions:[], handoffs:[]
+    }, imported);
+    this.save();
+    this._pendingImport = null;
+    document.getElementById('import-confirm-panel').style.display = 'none';
+    this.toast('Restored ' + this.countEntries() + ' entries \u2713');
+    // Re-init the view
+    if (this.state.theme === 'light') document.documentElement.setAttribute('data-theme', 'light');
+    else document.documentElement.removeAttribute('data-theme');
+    document.getElementById('theme-btn').textContent = this.state.theme === 'dark' ? '\uD83C\uDF19' : '\u2600\uFE0F';
+    if (this.state.onboarded && this.state.role) this.go('screen-home');
+    this.renderAll();
+    this.updateNudge();
+    this.updateFreshVisit();
+  },
+  importMerge: function() {
+    if (!this._pendingImport || !this._pendingImport.data) return;
+    var imported = this._pendingImport.data;
+    var merged = 0;
+    var collections = ['checkins','symptoms','medications','appointments','gooddays','journal','doctorQuestions','handoffs'];
+    for (var c = 0; c < collections.length; c++) {
+      var key = collections[c];
+      var existing = this.state[key] || [];
+      var incoming = imported[key] || [];
+      // Build set of existing IDs
+      var existingIds = {};
+      for (var i = 0; i < existing.length; i++) existingIds[existing[i].id] = true;
+      for (var j = 0; j < incoming.length; j++) {
+        if (!existingIds[incoming[j].id]) {
+          existing.push(incoming[j]);
+          merged++;
+        }
+      }
+      // Sort by date descending if date exists
+      existing.sort(function(a,b) {
+        if (!a.date || !b.date) return 0;
+        return new Date(b.date) - new Date(a.date);
+      });
+      this.state[key] = existing;
+    }
+    // Merge simple fields if not set
+    if (!this.state.role && imported.role) this.state.role = imported.role;
+    if (!this.state.onboarded && imported.onboarded) this.state.onboarded = imported.onboarded;
+    this.save();
+    this._pendingImport = null;
+    document.getElementById('import-confirm-panel').style.display = 'none';
+    this.toast('Added ' + merged + ' new entries \u2713');
+    if (this.state.onboarded && this.state.role) this.go('screen-home');
+    this.renderAll();
+    this.updateNudge();
+    this.updateFreshVisit();
+  },
+  importCancel: function() {
+    this._pendingImport = null;
+    document.getElementById('import-confirm-panel').style.display = 'none';
+  },
+  clearAllData: function() {
+    if (this._clearStep === 0) {
+      this._clearStep = 1;
+      document.getElementById('clear-confirm').style.display = 'block';
+      return;
+    }
+  },
+  clearConfirm: function() {
+    // Remove all BesideYou localStorage
+    try {
+      localStorage.removeItem('besideyou');
+      localStorage.removeItem('besideyou_lastExport');
+      localStorage.removeItem('besideyou_entriesAtLastExport');
+    } catch(e) {}
+    this._clearStep = 0;
+    document.getElementById('clear-confirm').style.display = 'none';
+    this.toast('All data cleared');
+    // Reset state and reload view
+    this.state = { role:null, theme:'dark', onboarded:false, dismissedWelcome:[], checkins:[], symptoms:[], medications:[], appointments:[], gooddays:[], journal:[], doctorQuestions:[], handoffs:[] };
+    document.documentElement.removeAttribute('data-theme');
+    document.getElementById('theme-btn').textContent = '\uD83C\uDF19';
+    this.go('screen-welcome');
+    document.getElementById('bottom-nav').style.display = 'none';
+    this.renderAll();
+    this.updateFreshVisit();
+  },
+  clearCancel: function() {
+    this._clearStep = 0;
+    document.getElementById('clear-confirm').style.display = 'none';
+  },
+  // Backup nudge
+  shouldShowNudge: function() {
+    var total = this.countEntries();
+    if (total <= 5) return false;
+    var lastExport = null;
+    try { lastExport = localStorage.getItem('besideyou_lastExport'); } catch(e) {}
+    if (!lastExport) return true; // Never exported
+    var atExport = 0;
+    try { atExport = parseInt(localStorage.getItem('besideyou_entriesAtLastExport') || '0', 10); } catch(e) {}
+    return (total - atExport) >= 10;
+  },
+  updateNudge: function() {
+    var nudge = document.getElementById('backup-nudge');
+    if (!nudge) return;
+    if (this.shouldShowNudge()) {
+      var total = this.countEntries();
+      document.getElementById('nudge-count').textContent = total;
+      nudge.style.display = 'flex';
+    } else {
+      nudge.style.display = 'none';
+    }
+  },
+  // Fresh visit
+  updateFreshVisit: function() {
+    var el = document.getElementById('fresh-visit');
+    if (!el) return;
+    var total = this.countEntries();
+    el.style.display = (total === 0) ? 'block' : 'none';
+  },
+
   renderAll: function() {
     this.renderSymptoms(); this.renderMeds(); this.renderAppts(); this.renderDQ();
     this.renderGoodDays(); this.renderJournal(); this.renderGlossary(); this.renderResources(); this.renderHandoffs();
@@ -380,6 +687,12 @@ document.addEventListener('click', function(e) {
   try {
     var t = e.target;
     var el;
+
+    el = _up(t, 'data-wp-dismiss');
+    if (el) { App.dismissWelcome(el.getAttribute('data-wp-dismiss')); return; }
+
+    el = _up(t, 'data-wp-show');
+    if (el) { App.showWelcome(el.getAttribute('data-wp-show')); return; }
 
     el = _up(t, 'data-go');
     if (el) { App.go(el.getAttribute('data-go')); return; }
@@ -445,6 +758,7 @@ document.addEventListener('click', function(e) {
 
 // Non-click events
 document.getElementById('import-file').addEventListener('change', function(e) { App.importData(e); });
+document.getElementById('import-json-file').addEventListener('change', function(e) { App.handleImportFile(e); });
 document.getElementById('glossary-search').addEventListener('input', function() { App.filterGlossary(); });
 
 // Init
